@@ -1,0 +1,10 @@
+tasks.withType(Test) {
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
+    useJUnitPlatform()
+    systemProperty "spring.profiles.active", System.getProperty("spring.profiles.active")
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+        showStackTraces = true
+    }
+}

@@ -1,0 +1,19 @@
+apply from: "${rootDir}/gradle/test.gradle"
+
+dependencies {
+
+    annotationProcessor libs.lombok
+    compileOnly libs.lombok
+
+    api libs.springBootWeb
+    api libs.logging
+    api libs.jackson
+    api libs.r2dbc
+    api libs.postgresql
+    api libs.openApi
+    api libs.junitTest
+    api libs.testContainers
+
+    testImplementation libs.junitTest
+    testImplementation project(':api-db')
+}

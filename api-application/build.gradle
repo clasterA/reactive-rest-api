@@ -1,0 +1,49 @@
+apply from: "${rootDir}/gradle/springframework.gradle"
+
+dependencies {
+
+    annotationProcessor libs.lombok
+    compileOnly libs.lombok
+
+    api libs.springBootWeb
+    api libs.postgresql
+    api libs.liquibase
+    api libs.r2dbc
+    api libs.openApi
+
+    implementation project (":api-common")
+
+}
+
+jar{
+    manifest {
+        attributes 'Start-Class': 'com.reactive.rest.ReactiveRestApiApplication'
+        attributes("Implementation-Version": project.version.toString())
+        attributes(
+                'Manifest-Version': '1.0',
+                'Class-Path': configurations.runtimeClasspath.files.collect { it.getName() }.join(' '),
+                'Main-Class': 'com.reactive.rest.ReactiveRestApiApplication'
+        )
+    }
+}
+
+bootJar {
+    archiveFileName = "reactive-rest-api.jar"
+    manifest {
+        attributes 'Start-Class': 'com.reactive.rest.ReactiveRestApiApplication'
+        attributes("Implementation-Version": project.version.toString())
+    }
+    launchScript()
+    destinationDirectory = project.mkdir("${rootDir}/app-build")
+    copy {
+        from "${project.rootDir}/api-db/src/main/resources/db/changelog"
+        into "${project.rootDir}/app-build/db/changelog"
+        include '**/*.xml'
+    }
+}
+
+processResources {
+    filesMatching ('**/application.properties') {
+        expand(project.properties)
+    }
+}

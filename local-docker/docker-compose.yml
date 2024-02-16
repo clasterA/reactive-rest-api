@@ -1,0 +1,29 @@
+version: "3"
+services:
+
+  vetenv-postgres:
+    container_name: rest_api_postgresql
+    image: postgres:latest
+    volumes:
+      - db:/data/postgres
+    ports:
+      - "5442:5432"
+    networks:
+      - postgresql_db
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "rest_api_db"
+
+networks:
+  postgresql_db:
+    driver: bridge
+
+volumes:
+  db:

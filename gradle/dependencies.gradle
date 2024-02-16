@@ -1,0 +1,123 @@
+ext {
+    versions = [
+            mapstruct: "1.5.5.Final",
+            liquibase: "4.26.0",
+            testContainer: "1.19.5",
+            servlet: "6.0.0",
+            web: [
+                    jackson: "2.16.1",
+                    jsonPatch: "1.13",
+            ],
+            commons: [
+                    lang3: "3.14.0",
+                    collections4: "4.4",
+                    beanutils: "1.9.4",
+                    codec: "1.16.1",
+                    io: "2.15.1",
+                    validator: "1.8.0",
+                    modelmapper: "3.2.0",
+            ],
+            junit: [
+                    mockitoCore: "5.6.0",
+                    jupiter: "5.10.0",
+                    assertjCore: "3.24.2",
+            ],
+            postgresql: [
+                    r2dbcPostgresql: "0.8.13.RELEASE",
+                    ver: "42.7.1",
+            ],
+            openApi: [
+                    doc: "1.7.0"
+            ]
+    ]
+
+}
+
+ext {
+        libs = [
+                springBootWeb: [
+                        "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion",
+                        "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion",
+                        "org.springframework.boot:spring-boot-starter-validation:$springBootVersion",
+                        "org.springframework.boot:spring-boot-starter-data-r2dbc:$springBootVersion",
+                        "com.github.java-json-tools:json-patch:$versions.web.jsonPatch"
+                ],
+
+                mapstruct : [
+                        "org.mapstruct:mapstruct:$versions.mapstruct",
+                ],
+
+                mapstructAnnotationProcessor: [
+                        "org.mapstruct:mapstruct-processor:$versions.mapstruct",
+                ],
+
+                lombok: "org.projectlombok:lombok",
+
+                logging: [
+                        "org.slf4j:slf4j-api"
+                ],
+
+                junitTest: [
+                        "org.springframework.boot:spring-boot-starter-test:$springBootVersion",
+                        "org.mockito:mockito-core:$versions.junit.mockitoCore",
+                        "org.junit.jupiter:junit-jupiter-api:$versions.junit.jupiter",
+                        "org.junit.jupiter:junit-jupiter-params:$versions.junit.jupiter",
+                        "org.assertj:assertj-core:$versions.junit.assertjCore"
+                ],
+
+                junitTestEngine: [
+                        "org.junit.jupiter:junit-jupiter-engine"
+                ],
+
+                liquibase: [
+                        "org.liquibase:liquibase-core:$versions.liquibase",
+                        "org.liquibase.ext:liquibase-postgresql:$versions.liquibase"
+                ],
+
+                r2dbc: [
+                        "org.springframework.data:spring-data-r2dbc:$springBootVersion",
+                ],
+
+                postgresql: [
+                        "io.r2dbc:r2dbc-postgresql:$versions.postgresql.r2dbcPostgresql",
+                        "org.postgresql:postgresql:$versions.postgresql.ver",
+                ],
+
+                jackson: [
+                        "com.fasterxml.jackson.core:jackson-core:$versions.web.jackson",
+                        "com.fasterxml.jackson.core:jackson-annotations:$versions.web.jackson",
+                        "com.fasterxml.jackson.core:jackson-databind:$versions.web.jackson",
+                        "com.fasterxml.jackson.jaxrs:jackson-jaxrs-json-provider:$versions.web.jackson",
+                        "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$versions.web.jackson"
+                ],
+
+                openApi: [
+                        "org.springdoc:springdoc-openapi-webflux-core:$versions.openApi.doc",
+                        "org.springdoc:springdoc-openapi-webflux-ui:$versions.openApi.doc",
+                ],
+
+                commons: [
+                        "org.apache.commons:commons-lang3:$versions.commons.lang3",
+                        "org.apache.commons:commons-collections4:$versions.commons.collections4",
+                        "commons-beanutils:commons-beanutils:$versions.commons.beanutils",
+                        "commons-codec:commons-codec:$versions.commons.codec",
+                        "commons-io:commons-io:$versions.commons.io",
+                        "commons-validator:commons-validator:$versions.commons.validator",
+                        "org.modelmapper:modelmapper:$versions.commons.modelmapper"
+                ],
+                testContainers       : [
+                        "org.testcontainers:postgresql:$versions.testContainer",
+                        "org.testcontainers:junit-jupiter:$versions.testContainer"
+                ]
+        ]
+}
+
+allprojects {
+    configurations.configureEach {
+        exclude group: 'junit'
+        exclude module: 'spring-boot-starter-logging'
+        exclude module: 'commons-logging'
+    }
+}
+
+

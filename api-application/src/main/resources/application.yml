@@ -1,0 +1,46 @@
+server:
+  address: ${PROCESS_ADDRESS:127.0.0.1}
+  port: 8081
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: SimpleRestApi
+    version: ${version}
+  main:
+    allow-bean-definition-overriding: true
+  sql:
+    init:
+      continue-on-error: false
+      platform: postgres
+  r2dbc:
+    url: ${DB_R2DBC_URL:r2dbc:postgresql://localhost:5442/rest_api_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    pool:
+      initial-size: 10
+      max-size: 20
+  data:
+    r2dbc:
+      repositories:
+        enabled: true
+  liquibase:
+    drop-first: false
+    change-log: classpath:db/changelogs/db.changelog-master.xml
+    url: ${DB_JDBC_URL:jdbc:postgresql://localhost:5442/rest_api_db}
+    user: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    enabled: true
+  flyway:
+    enabled: false
+  profiles:
+    active: 'default'
+
+debug: true
+
+logging:
+  level:
+    io.r2dbc.postgresql.QUERY: DEBUG # for queries
+    io.r2dbc.postgresql.PARAM: DEBUG # for parameters
+  config: classpath:logback-spring.xml

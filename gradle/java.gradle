@@ -1,0 +1,135 @@
+apply plugin: 'java-library'
+apply plugin: "com.diffplug.spotless"
+apply plugin: 'ru.vyarus.quality'
+apply plugin: 'jacoco'
+apply plugin: "com.github.spotbugs"
+
+sourceCompatibility = JavaVersion.VERSION_21
+targetCompatibility = JavaVersion.VERSION_21
+
+tasks.named("compileJava") {
+    options.release = 21
+}
+
+tasks.register('dist') {
+    dependsOn 'build'
+}
+
+dependencies {
+    implementation libs.commons
+    compileOnly libs.lombok
+    testCompileOnly libs.lombok
+    annotationProcessor libs.lombok
+    testAnnotationProcessor libs.lombok
+    implementation libs.mapstruct
+    annotationProcessor libs.mapstructAnnotationProcessor
+    testImplementation libs.junitTest
+    testRuntimeOnly libs.junitTestEngine
+}
+
+apply from: "${rootDir}/gradle/dep-manager.gradle"
+
+spotless {
+    java {
+        targetExclude('build/generated/**/*.java')
+        licenseHeaderFile "${rootDir}/LICENSE.md"
+        importOrder()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        indentWithSpaces()
+        endWithNewline()
+        googleJavaFormat()
+    }
+}
+
+def spotBugsExcludeFile() {
+    project.files(
+            file("${rootProject.projectDir}/config/spotbugs/exclude.xml"),
+            file("${rootProject.projectDir}/../config/spotbugs/exclude.xml"),
+            file("${rootProject.projectDir}/gradle/config/spotbugs/exclude.xml"),
+            file("${rootProject.projectDir}/../gradle/config/spotbugs/exclude.xml")).getFiles().find { it.exists() }
+}
+
+def spotBugsExcludeConfig() {
+    def spotBugsFileConfig = spotBugsExcludeFile()
+    spotBugsFileConfig ? resources.text.fromFile(spotBugsFileConfig) : resources.text.fromString(project.buildscript.classLoader.getResource('spotbugs/exclude.xml').getFile())
+}
+
+quality {
+    spotbugs = false
+    spotbugsPlugin 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.12.0'
+    excludeSources = files(spotBugsExcludeConfig())
+    codenarc = false
+    checkstyle = false
+    pmd = false
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+    reportsDirectory = layout.buildDirectory.dir("${project.rootDir.absolutePath}/jacoco")
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir("${rootDir}/jacoco/html")
+    }
+    afterEvaluate {
+        getClassDirectories().setFrom files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    '**/dto/**',
+                    '**/nosql/**',
+                    '**/config/**',
+            ])
+        })
+    }
+    dependsOn test
+
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80
+            }
+        }
+        rule {
+            element = 'CLASS'
+            excludes = ['com.reactive.rest.ReactiveRestApiApplication']
+            limit {
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+check {
+    dependsOn jacocoTestCoverageVerification
+}
+
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport.dependsOn tasks.withType(Test)
+
+spotbugs {
+    ignoreFailures = false
+    showStackTraces = true
+    showProgress = true
+    reportsDir = file("$rootProject.projectDir/spotbugs")
+    excludeFilter = file("${rootProject.projectDir}/gradle/config/spotbugs/exclude.xml")
+    extraArgs = [ '-nested:false' ]
+    jvmArgs = [ '-Duser.language=en' ]
+    maxHeapSize = "512m"
+}
+
+tasks.spotbugsMain {
+    reports.create("html") {
+        required = true
+        outputLocation = file("$rootProject.projectDir/spotbugs/spotbugs.html")
+        setStylesheet("fancy-hist.xsl")
+    }
+}

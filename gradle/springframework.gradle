@@ -1,0 +1,24 @@
+apply plugin: 'org.springframework.boot'
+
+ext.getCommitHash = {
+    'git rev-parse --verify HEAD'.execute().text.trim()
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    '../../src/main/resources'
+            ]
+        }
+    }
+}
+
+configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 0, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
+springBoot {
+    buildInfo()
+}

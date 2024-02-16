@@ -1,0 +1,31 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build/
+
+# Ignore Gradle application artifact directory
+app-artifact/
+
+# Ignore JaCoCo reporting
+jacoco/
+
+# Ignore SpotBugs reporting
+spotbugs/
+
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+.DS_Store
+.versions
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+*.log

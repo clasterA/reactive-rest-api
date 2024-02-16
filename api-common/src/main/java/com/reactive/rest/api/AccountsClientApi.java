@@ -1,0 +1,159 @@
+/* Copyright (C) MZ Project - All Rights Reserved
+ *
+ */
+package com.reactive.rest.api;
+
+import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
+import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+
+import com.reactive.rest.api.handler.AccountsClientApiHandler;
+import com.reactive.rest.dto.Client;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.util.UUID;
+import org.springdoc.core.annotations.RouterOperation;
+import org.springdoc.core.annotations.RouterOperations;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerResponse;
+
+@Configuration
+public class AccountsClientApi {
+
+  @Bean
+  @RouterOperations({
+    @RouterOperation(
+        path = "/accounts/client",
+        produces = {"application/json"},
+        consumes = {"application/json"},
+        method = RequestMethod.POST,
+        operation =
+            @Operation(
+                operationId = "createClient",
+                summary = "Create new client",
+                description = "Operation create new client without accounts, with status active",
+                responses = {
+                  @ApiResponse(
+                      responseCode = "201",
+                      description = "Created",
+                      content = @Content(schema = @Schema(implementation = UUID.class))),
+                  @ApiResponse(responseCode = "400", description = "Bad Request")
+                }))
+  })
+  @RequestMapping(
+      value = "/accounts/client",
+      produces = {"application/json"},
+      consumes = {"application/json"},
+      method = RequestMethod.POST)
+  @SuppressWarnings({"all"})
+  public RouterFunction<ServerResponse> createClient(AccountsClientApiHandler handler) {
+    return RouterFunctions.route(
+        POST("/accounts/client").and(accept(MediaType.APPLICATION_JSON)), handler::createClient);
+  }
+
+  @Bean
+  @RouterOperations({
+    @RouterOperation(
+        path = "/accounts/client/{id}",
+        produces = {"application/json"},
+        consumes = {"application/json"},
+        method = RequestMethod.GET,
+        operation =
+            @Operation(
+                operationId = "getClient",
+                summary = "Get client by uuid",
+                description =
+                    "Operation return client with all accounts (full client structure), return only client with status active",
+                responses = {
+                  @ApiResponse(
+                      responseCode = "200",
+                      description = "OK",
+                      content = @Content(schema = @Schema(implementation = Client.class))),
+                  @ApiResponse(responseCode = "400", description = "Bad Request")
+                }))
+  })
+  @RequestMapping(
+      value = "/accounts/client/{id}",
+      produces = {"application/json"},
+      consumes = {"application/json"},
+      method = RequestMethod.GET)
+  @SuppressWarnings({"all"})
+  public RouterFunction<ServerResponse> getClient(AccountsClientApiHandler handler) {
+    return RouterFunctions.route(
+        POST("/accounts/client/{id}").and(accept(MediaType.APPLICATION_JSON)), handler::getClient);
+  }
+
+  @Bean
+  @RouterOperations({
+    @RouterOperation(
+        path = "/accounts/client/{id}",
+        produces = {"application/json"},
+        consumes = {"application/json"},
+        method = RequestMethod.DELETE,
+        operation =
+            @Operation(
+                operationId = "removeClient",
+                summary = "Remove client by uuid",
+                description =
+                    "Operation change client status to closed, physical from database nothing deleted",
+                responses = {
+                  @ApiResponse(
+                      responseCode = "202",
+                      description = "Accepted",
+                      content = @Content(schema = @Schema(implementation = Client.class))),
+                  @ApiResponse(responseCode = "400", description = "Bad Request")
+                }))
+  })
+  @RequestMapping(
+      value = "/accounts/client/{id}",
+      produces = {"application/json"},
+      consumes = {"application/json"},
+      method = RequestMethod.DELETE)
+  @SuppressWarnings({"all"})
+  public RouterFunction<ServerResponse> removeClient(AccountsClientApiHandler handler) {
+    return RouterFunctions.route(
+        POST("/accounts/client/{id}").and(accept(MediaType.APPLICATION_JSON)),
+        handler::removeClient);
+  }
+
+  /*@Bean
+  @RouterOperations({
+          @RouterOperation(
+                  path = "/accounts/client/{id}",
+                  produces = {"application/json", "application/xml"},
+                  method = RequestMethod.PATCH,
+                  operation =
+                  @Operation(
+                          operationId = "updateClient",
+                          summary = "Update client by uuid",
+                          description = "Operation update client structure",
+                          responses = {
+                                  @ApiResponse(
+                                          responseCode = "202",
+                                          description = "Accepted",
+                                          content = @Content(schema = @Schema(implementation = Client.class))),
+                                  @ApiResponse(
+                                          responseCode = "400",
+                                          description = "Bad Request")
+                          }))
+  })
+  @RequestMapping(
+          value = "/accounts/client/{id}",
+          produces = {"application/json", "application/xml"},
+          consumes = {"application/json", "application/xml"},
+          method = RequestMethod.PATCH)
+  @SuppressWarnings({"all"})
+  public RouterFunction<ServerResponse> getClient(AccountsClientApiHandler handler) {
+      return RouterFunctions.route(
+              POST("/accounts/client/{id}").and(accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML)),
+              handler::getClient);
+  }*/
+
+}
