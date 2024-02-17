@@ -60,6 +60,37 @@ public class ClientsApi {
   @Bean
   @RouterOperations({
     @RouterOperation(
+        path = "/client",
+        produces = {"application/json"},
+        consumes = {"application/json"},
+        method = RequestMethod.GET,
+        operation =
+            @Operation(
+                operationId = "getClientList",
+                summary = "Get client list",
+                description = "Operation return client list",
+                responses = {
+                  @ApiResponse(
+                      responseCode = "200",
+                      description = "OK",
+                      content = @Content(schema = @Schema(implementation = Client.class))),
+                  @ApiResponse(responseCode = "400", description = "Bad Request")
+                }))
+  })
+  @RequestMapping(
+      value = "/client",
+      produces = {"application/json"},
+      consumes = {"application/json"},
+      method = RequestMethod.GET)
+  @SuppressWarnings({"all"})
+  public RouterFunction<ServerResponse> getClientList(ClientsApiHandler handler) {
+    return RouterFunctions.route(
+        GET("/client").and(accept(MediaType.APPLICATION_JSON)), handler::getClients);
+  }
+
+  @Bean
+  @RouterOperations({
+    @RouterOperation(
         path = "/client/{id}",
         produces = {"application/json"},
         consumes = {"application/json"},

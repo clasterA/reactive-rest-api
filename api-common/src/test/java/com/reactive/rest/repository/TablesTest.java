@@ -13,11 +13,11 @@ class TablesTest {
   @DisplayName("Database tables naming test.")
   void databaseTablesNamingTest() {
 
-    Assertions.assertThat(Tables.CLIENT).isEqualTo("rest_api.client");
+    Assertions.assertThat(Tables.CLIENT).isEqualTo("rest_api.clients");
 
-    Assertions.assertThat(Tables.ACCOUNT).isEqualTo("rest_api.account");
+    Assertions.assertThat(Tables.ACCOUNT).isEqualTo("rest_api.accounts");
 
-    Assertions.assertThat(Tables.TRANSACTION).isEqualTo("rest_api.transaction");
+    Assertions.assertThat(Tables.TRANSACTION).isEqualTo("rest_api.transactions");
 
     Assertions.assertThat(Tables.CURRENCY).isEqualTo("rest_api.currency");
 

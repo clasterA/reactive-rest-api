@@ -21,9 +21,16 @@
 
     <changeSet id="com.reactive.rest.create_tables_01" author="andrejs.zavjalovs">
         <sql>
+            CREATE TABLE rest_api.currency
+            (
+                code        varchar(3)  PRIMARY KEY,
+                description varchar(255) NOT NULL,
+                constraint currency_check_length check (length(code) = 3)
+            );
+
             CREATE DOMAIN client_name AS varchar(255) CHECK (VALUE ~ '^[a-zA-Z]');
 
-            CREATE TABLE rest_api.client
+            CREATE TABLE rest_api.clients
             (
                 id            SERIAL       PRIMARY KEY,
                 guid          uuid         NOT NULL UNIQUE,
@@ -32,6 +39,41 @@
                 created_at    timestamp    WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
                 constraint client_check_status check (status in ('Active', 'Closed'))
             );
+
+            CREATE DOMAIN account_name AS varchar(255) CHECK (VALUE ~ '^[a-zA-Z][a-zA-Z0-9]');
+
+            CREATE TABLE rest_api.accounts
+            (
+                id            SERIAL       PRIMARY KEY,
+                guid          uuid         NOT NULL UNIQUE,
+                client_guid   uuid         NOT NULL,
+                client_name   client_name  NOT NULL,
+                name          account_name NOT NULL,
+                currency      varchar(3)   NOT NULL,
+                created_at    timestamp    WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT fk_accounts_currency FOREIGN KEY (currency) REFERENCES rest_api.currency (code),
+                CONSTRAINT fk_accounts_client_guid FOREIGN KEY (client_guid) REFERENCES rest_api.clients (guid),
+                CONSTRAINT fk_accounts_client_name FOREIGN KEY (client_name) REFERENCES rest_api.clients (name)
+            );
+
+            CREATE UNIQUE INDEX idx_accounts_client_currency ON rest_api.accounts (client_guid, currency);
+
+        </sql>
+    </changeSet>
+
+    <changeSet id="com.reactive.rest.fill_currency_01" author="andrejs.zavjalovs">
+        <sql>
+            INSERT INTO rest_api.currency
+                (code, description)
+            VALUES('USD', 'United States dollar');
+
+            INSERT INTO rest_api.currency
+                (code, description)
+            VALUES('EUR', 'Currency of the European Union');
+
+            INSERT INTO rest_api.currency
+                (code, description)
+            VALUES('GBP', 'The pound sterling (GBP) is the official currency of the United Kingdom');
         </sql>
     </changeSet>
 

@@ -4,6 +4,7 @@
 package com.reactive.rest.api.handler;
 
 import com.reactive.rest.dto.Client;
+import com.reactive.rest.dto.ClientList;
 import com.reactive.rest.engine.ClientsApiEngine;
 import com.reactive.rest.service.ClientService;
 import java.net.URI;
@@ -56,6 +57,23 @@ public class ClientsApiHandler extends ClientsApiEngine {
         .onErrorResume(
             e -> {
               log.error("Get client error: " + e.getMessage());
+              return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
+            });
+  }
+
+  /**
+   * Operation return client list status active
+   *
+   * @return - all the products info as part of ServerResponse
+   */
+  public Mono<ServerResponse> getClients(ServerRequest serverRequest) {
+
+    return ServerResponse.ok()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(this.getClientList(serverRequest), ClientList.class)
+        .onErrorResume(
+            e -> {
+              log.error("Get clients error: " + e.getMessage());
               return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
             });
   }

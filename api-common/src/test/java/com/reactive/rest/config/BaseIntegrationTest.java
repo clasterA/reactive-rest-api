@@ -3,9 +3,12 @@
  */
 package com.reactive.rest.config;
 
+import com.reactive.rest.command.CreateClientAccountCommand;
 import com.reactive.rest.command.CreateClientCommand;
 import com.reactive.rest.enums.ClientStatusEnum;
+import com.reactive.rest.repository.AccountRepository;
 import com.reactive.rest.repository.ClientRepository;
+import com.reactive.rest.service.AccountService;
 import com.reactive.rest.service.ClientService;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -52,10 +55,15 @@ public abstract class BaseIntegrationTest extends Assertions {
 
   @Autowired ClientRepository clientRepository;
 
+  @Autowired AccountService accountService;
+
+  @Autowired AccountRepository accountRepository;
+
   @LocalServerPort private Integer serverPort;
 
   protected static final Network POSTGRESQL_NETWORK = Network.newNetwork();
   protected UUID clientGuid;
+  protected UUID accountGuid;
 
   protected WebTestClient webClient() {
     return WebTestClient.bindToApplicationContext(applicationContext)
@@ -112,9 +120,9 @@ public abstract class BaseIntegrationTest extends Assertions {
   @DisplayName("Initialize db for integration testing")
   void setUp() {
 
-    var command = CreateClientCommand.builder().name("TestClient").build();
+    var clientCommand = CreateClientCommand.builder().name("TestClient").build();
 
-    var client = clientService.createClient(command).block();
+    var client = clientService.createClient(clientCommand).block();
 
     Assertions.assertThat(client).isNotNull();
     Assertions.assertThat(client.getGuid()).isNotNull();
@@ -122,12 +130,32 @@ public abstract class BaseIntegrationTest extends Assertions {
     Assertions.assertThat(client.getStatus()).isEqualTo(ClientStatusEnum.ACTIVE);
 
     clientGuid = client.getGuid();
+
+    var accountCommand =
+        CreateClientAccountCommand.builder()
+            .clientGuid(clientGuid)
+            .clientName("TestClient")
+            .name("Euro account")
+            .currency("EUR")
+            .build();
+
+    var account = accountService.createNewClientAccount(accountCommand).block();
+
+    Assertions.assertThat(account).isNotNull();
+    Assertions.assertThat(account.getGuid()).isNotNull();
+    Assertions.assertThat(account.getClientGuid()).isEqualTo(clientGuid);
+    Assertions.assertThat(account.getName()).isEqualTo("Euro account");
+    Assertions.assertThat(account.getClientName()).isEqualTo("TestClient");
+    Assertions.assertThat(account.getCurrency()).isEqualTo("EUR");
+
+    accountGuid = account.getGuid();
   }
 
   @AfterAll
   @DisplayName("Clear test db after test is completed")
   void clearSetUp() {
 
+    accountRepository.deleteAll().block();
     clientRepository.deleteAll().block();
   }
 }

@@ -3,9 +3,12 @@
  */
 package com.reactive.rest.mapper;
 
+import com.reactive.rest.dto.Account;
 import com.reactive.rest.dto.Client;
 import com.reactive.rest.enums.ClientStatusEnum;
+import com.reactive.rest.repository.AccountEntity;
 import com.reactive.rest.repository.ClientEntity;
+import java.util.List;
 import org.mapstruct.*;
 
 @Mapper(
@@ -14,6 +17,10 @@ import org.mapstruct.*;
     unmappedTargetPolicy = ReportingPolicy.IGNORE,
     componentModel = "spring")
 public interface CommonMapper {
+
+  Account map(AccountEntity source);
+
+  AccountEntity map(Account source);
 
   @Mapping(target = "status", expression = "java(getClientStatusEnumFromString(source))")
   Client map(ClientEntity source);
@@ -28,4 +35,8 @@ public interface CommonMapper {
   default String getClientStatusEnumFromValue(Client source) {
     return source.getStatus().getVal();
   }
+
+  List<Account> mapAccountList(List<AccountEntity> sourceList);
+
+  List<Client> mapClientList(List<ClientEntity> sourceList);
 }

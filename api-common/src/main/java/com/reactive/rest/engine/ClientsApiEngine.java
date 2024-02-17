@@ -7,6 +7,7 @@ import static org.springframework.web.reactive.function.BodyExtractors.toMono;
 
 import com.reactive.rest.command.CreateClientCommand;
 import com.reactive.rest.dto.Client;
+import com.reactive.rest.dto.ClientList;
 import com.reactive.rest.service.ClientService;
 import com.reactive.rest.utils.CommonUtils;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,18 @@ public class ClientsApiEngine {
     return Mono.just(serverRequest)
         .flatMap(CommonUtils::getUrlId)
         .flatMap(clientService::getClientByGuid);
+  }
+
+  protected Mono<ClientList> getClientList(ServerRequest serverRequest) {
+
+    return clientService
+        .getClients()
+        .flatMap(
+            clients -> {
+              var clientList = new ClientList();
+              clientList.setClients(clients);
+              return Mono.just(clientList);
+            });
   }
 
   protected Mono<Client> removeExistingClient(ServerRequest serverRequest) {

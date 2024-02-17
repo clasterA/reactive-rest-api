@@ -9,6 +9,7 @@ import com.reactive.rest.enums.ClientStatusEnum;
 import com.reactive.rest.mapper.CommonMapper;
 import com.reactive.rest.repository.ClientEntity;
 import com.reactive.rest.repository.ClientRepository;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,15 @@ public class ClientServiceImpl implements ClientService {
         .findByGuid(guid)
         .map(mapper::map)
         .switchIfEmpty(Mono.error(() -> new RuntimeException("Client not found")));
+  }
+
+  @Override
+  public @NotNull Mono<List<Client>> getClients() {
+
+    return Mono.defer(
+            () -> clientRepository.getClientList().collectList().map(mapper::mapClientList))
+        .doOnEach(clientList -> log.debug("Client data : {}", clientList))
+        .switchIfEmpty(Mono.error(() -> new RuntimeException("Not found any clients")));
   }
 
   @Override
