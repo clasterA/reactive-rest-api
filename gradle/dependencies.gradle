@@ -21,6 +21,7 @@ ext {
                     mockitoCore: "5.6.0",
                     jupiter: "5.10.0",
                     assertjCore: "3.24.2",
+                    backport: "1.0.0",
             ],
             postgresql: [
                     r2dbcPostgresql: "0.8.13.RELEASE",
@@ -66,7 +67,8 @@ ext {
                         "org.mockito:mockito-core:$versions.junit.mockitoCore",
                         "org.junit.jupiter:junit-jupiter-api:$versions.junit.jupiter",
                         "org.junit.jupiter:junit-jupiter-params:$versions.junit.jupiter",
-                        "org.assertj:assertj-core:$versions.junit.assertjCore"
+                        "org.assertj:assertj-core:$versions.junit.assertjCore",
+                        "com.github.seratch:java-time-backport:$versions.junit.backport"
                 ],
 
                 junitTestEngine: [
