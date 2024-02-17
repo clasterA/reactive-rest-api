@@ -20,7 +20,7 @@ class ClientServiceTest extends BaseIntegrationTest {
   @DisplayName("Test should client by guid from postgresql db.")
   void shouldGetClientByGuidTest() {
 
-    var client = clientService.getClientByGuid(userGuid).block();
+    var client = clientService.getClientByGuid(clientGuid).block();
 
     Assertions.assertThat(client).isNotNull();
     Assertions.assertThat(client.getGuid()).isNotNull();
@@ -32,7 +32,7 @@ class ClientServiceTest extends BaseIntegrationTest {
   @DisplayName("Test should remove client (change it status to closed) by guid from postgresql db.")
   void shouldRemoveClientByGuidTest() {
 
-    var client = clientService.removeClient(userGuid).block();
+    var client = clientService.removeClient(clientGuid).block();
 
     Assertions.assertThat(client).isNotNull();
     Assertions.assertThat(client.getGuid()).isNotNull();

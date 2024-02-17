@@ -3,10 +3,9 @@
  */
 package com.reactive.rest.api;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 
-import com.reactive.rest.api.handler.AccountsClientApiHandler;
+import com.reactive.rest.api.handler.ClientsApiHandler;
 import com.reactive.rest.dto.Client;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,12 +24,12 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 @Configuration
-public class AccountsClientApi {
+public class ClientsApi {
 
   @Bean
   @RouterOperations({
     @RouterOperation(
-        path = "/accounts/client",
+        path = "/client",
         produces = {"application/json"},
         consumes = {"application/json"},
         method = RequestMethod.POST,
@@ -38,7 +37,7 @@ public class AccountsClientApi {
             @Operation(
                 operationId = "createClient",
                 summary = "Create new client",
-                description = "Operation create new client without accounts, with status active",
+                description = "Operation create new client, with status active",
                 responses = {
                   @ApiResponse(
                       responseCode = "201",
@@ -48,20 +47,20 @@ public class AccountsClientApi {
                 }))
   })
   @RequestMapping(
-      value = "/accounts/client",
+      value = "/client",
       produces = {"application/json"},
       consumes = {"application/json"},
       method = RequestMethod.POST)
   @SuppressWarnings({"all"})
-  public RouterFunction<ServerResponse> createClient(AccountsClientApiHandler handler) {
+  public RouterFunction<ServerResponse> createClient(ClientsApiHandler handler) {
     return RouterFunctions.route(
-        POST("/accounts/client").and(accept(MediaType.APPLICATION_JSON)), handler::createClient);
+        POST("/client").and(accept(MediaType.APPLICATION_JSON)), handler::createClient);
   }
 
   @Bean
   @RouterOperations({
     @RouterOperation(
-        path = "/accounts/client/{id}",
+        path = "/client/{id}",
         produces = {"application/json"},
         consumes = {"application/json"},
         method = RequestMethod.GET,
@@ -69,7 +68,7 @@ public class AccountsClientApi {
             @Operation(
                 operationId = "getClient",
                 summary = "Get client by uuid",
-                description = "Operation return client with all accounts (full client structure)",
+                description = "Operation return client",
                 responses = {
                   @ApiResponse(
                       responseCode = "200",
@@ -79,20 +78,20 @@ public class AccountsClientApi {
                 }))
   })
   @RequestMapping(
-      value = "/accounts/client/{id}",
+      value = "/client/{id}",
       produces = {"application/json"},
       consumes = {"application/json"},
       method = RequestMethod.GET)
   @SuppressWarnings({"all"})
-  public RouterFunction<ServerResponse> getClient(AccountsClientApiHandler handler) {
+  public RouterFunction<ServerResponse> getClient(ClientsApiHandler handler) {
     return RouterFunctions.route(
-        POST("/accounts/client/{id}").and(accept(MediaType.APPLICATION_JSON)), handler::getClient);
+        GET("/client/{id}").and(accept(MediaType.APPLICATION_JSON)), handler::getClient);
   }
 
   @Bean
   @RouterOperations({
     @RouterOperation(
-        path = "/accounts/client/{id}",
+        path = "/client/{id}",
         produces = {"application/json"},
         consumes = {"application/json"},
         method = RequestMethod.DELETE,
@@ -111,48 +110,13 @@ public class AccountsClientApi {
                 }))
   })
   @RequestMapping(
-      value = "/accounts/client/{id}",
+      value = "/client/{id}",
       produces = {"application/json"},
       consumes = {"application/json"},
       method = RequestMethod.DELETE)
   @SuppressWarnings({"all"})
-  public RouterFunction<ServerResponse> removeClient(AccountsClientApiHandler handler) {
+  public RouterFunction<ServerResponse> removeClient(ClientsApiHandler handler) {
     return RouterFunctions.route(
-        POST("/accounts/client/{id}").and(accept(MediaType.APPLICATION_JSON)),
-        handler::removeClient);
+        DELETE("/client/{id}").and(accept(MediaType.APPLICATION_JSON)), handler::removeClient);
   }
-
-  /*@Bean
-  @RouterOperations({
-          @RouterOperation(
-                  path = "/accounts/client/{id}",
-                  produces = {"application/json", "application/xml"},
-                  method = RequestMethod.PATCH,
-                  operation =
-                  @Operation(
-                          operationId = "updateClient",
-                          summary = "Update client by uuid",
-                          description = "Operation update client structure",
-                          responses = {
-                                  @ApiResponse(
-                                          responseCode = "202",
-                                          description = "Accepted",
-                                          content = @Content(schema = @Schema(implementation = Client.class))),
-                                  @ApiResponse(
-                                          responseCode = "400",
-                                          description = "Bad Request")
-                          }))
-  })
-  @RequestMapping(
-          value = "/accounts/client/{id}",
-          produces = {"application/json", "application/xml"},
-          consumes = {"application/json", "application/xml"},
-          method = RequestMethod.PATCH)
-  @SuppressWarnings({"all"})
-  public RouterFunction<ServerResponse> getClient(AccountsClientApiHandler handler) {
-      return RouterFunctions.route(
-              POST("/accounts/client/{id}").and(accept(MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML)),
-              handler::getClient);
-  }*/
-
 }

@@ -97,7 +97,9 @@ jacocoTestCoverageVerification {
         }
         rule {
             element = 'CLASS'
-            excludes = ['com.reactive.rest.ReactiveRestApiApplication']
+            excludes = ['com.reactive.rest.ReactiveRestApiApplication',
+                        'com.reactive.rest.config.WebExceptionHandlerConfig',
+                        'com.reactive.rest.repository.Tables']
             limit {
                 minimum = 0.80
             }

@@ -5,6 +5,7 @@ package com.reactive.rest.config;
 
 import com.reactive.rest.command.CreateClientCommand;
 import com.reactive.rest.enums.ClientStatusEnum;
+import com.reactive.rest.repository.ClientRepository;
 import com.reactive.rest.service.ClientService;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -12,6 +13,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,9 +48,14 @@ public abstract class BaseIntegrationTest extends Assertions {
 
   @Autowired private ApplicationContext applicationContext;
 
+  @Autowired ClientService clientService;
+
+  @Autowired ClientRepository clientRepository;
+
   @LocalServerPort private Integer serverPort;
 
   protected static final Network POSTGRESQL_NETWORK = Network.newNetwork();
+  protected UUID clientGuid;
 
   protected WebTestClient webClient() {
     return WebTestClient.bindToApplicationContext(applicationContext)
@@ -101,10 +108,6 @@ public abstract class BaseIntegrationTest extends Assertions {
         + "?loggerLevel=OFF";
   }
 
-  @Autowired ClientService clientService;
-
-  protected UUID userGuid;
-
   @BeforeAll
   @DisplayName("Initialize db for integration testing")
   void setUp() {
@@ -118,6 +121,13 @@ public abstract class BaseIntegrationTest extends Assertions {
     Assertions.assertThat(client.getName()).isEqualTo("TestClient");
     Assertions.assertThat(client.getStatus()).isEqualTo(ClientStatusEnum.ACTIVE);
 
-    userGuid = client.getGuid();
+    clientGuid = client.getGuid();
+  }
+
+  @AfterAll
+  @DisplayName("Clear test db after test is completed")
+  void clearSetUp() {
+
+    clientRepository.deleteAll().block();
   }
 }
