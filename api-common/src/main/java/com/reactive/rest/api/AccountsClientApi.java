@@ -69,8 +69,7 @@ public class AccountsClientApi {
             @Operation(
                 operationId = "getClient",
                 summary = "Get client by uuid",
-                description =
-                    "Operation return client with all accounts (full client structure), return only client with status active",
+                description = "Operation return client with all accounts (full client structure)",
                 responses = {
                   @ApiResponse(
                       responseCode = "200",

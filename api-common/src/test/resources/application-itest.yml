@@ -1,0 +1,46 @@
+server:
+  error:
+    include-message: always
+    include-binding-errors: always
+  address: 0.0.0.0
+  port: 8082
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: SimpleRestApi integration test
+  main:
+    allow-bean-definition-overriding: true
+  metrics:
+    prometheus:
+      enabled: false
+  r2dbc:
+    pool:
+      initial-size: 10
+      max-size: 20
+  liquibase:
+    drop-first: true
+    enabled: true
+    default-schema: public
+    contexts: "!prod"
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  flyway:
+    enabled: false
+  data:
+    postgesql:
+      username: postgres
+      password: postgres
+      database: rest_api_db
+      embedded:
+        version: latest
+    r2dbc:
+      repositories:
+        enabled: true
+
+logging:
+  level:
+    io.r2dbc.postgresql.QUERY: DEBUG # for queries
+    io.r2dbc.postgresql.PARAM: DEBUG # for parameters
+
+  config: classpath:logback-spring.xml

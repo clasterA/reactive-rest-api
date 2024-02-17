@@ -15,8 +15,23 @@
         <sql>
             GRANT ALL PRIVILEGES ON DATABASE ${rds_db_name} TO ${rds_username};
             CREATE SCHEMA IF NOT EXISTS rest_api;
-            CREATE EXTENSION IF NOT EXISTS "pgcrypto";
             CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+        </sql>
+    </changeSet>
+
+    <changeSet id="com.reactive.rest.create_tables_01" author="andrejs.zavjalovs">
+        <sql>
+            CREATE DOMAIN client_name AS varchar(255) CHECK (VALUE ~ '^[a-zA-Z]');
+
+            CREATE TABLE rest_api.client
+            (
+                id            SERIAL       PRIMARY KEY,
+                guid          uuid         NOT NULL UNIQUE,
+                name          client_name  NOT NULL UNIQUE,
+                status        varchar(10)  NOT NULL,
+                created_at    timestamp    WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                constraint client_check_status check (status in ('Active', 'Closed'))
+            );
         </sql>
     </changeSet>
 

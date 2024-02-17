@@ -51,6 +51,10 @@ ext {
                         "org.mapstruct:mapstruct-processor:$versions.mapstruct",
                 ],
 
+                servlet: [
+                        "jakarta.servlet:jakarta.servlet-api:$versions.servlet"
+                ],
+
                 lombok: "org.projectlombok:lombok",
 
                 logging: [
@@ -114,6 +118,7 @@ ext {
 
 allprojects {
     configurations.configureEach {
+        exclude group: 'org.junit.vintage'
         exclude group: 'junit'
         exclude module: 'spring-boot-starter-logging'
         exclude module: 'commons-logging'

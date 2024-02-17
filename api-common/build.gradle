@@ -11,6 +11,7 @@ dependencies {
     api libs.r2dbc
     api libs.postgresql
     api libs.openApi
+    api libs.servlet
     api libs.junitTest
     api libs.testContainers
 

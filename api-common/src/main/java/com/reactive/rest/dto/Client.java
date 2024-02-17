@@ -5,6 +5,7 @@ package com.reactive.rest.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.reactive.rest.enums.ClientStatusEnum;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Data;
 
@@ -19,4 +20,7 @@ public class Client {
 
   @JsonProperty("status")
   private ClientStatusEnum status;
+
+  @JsonProperty("createdAt")
+  private LocalDateTime createdAt;
 }
