@@ -4,6 +4,7 @@
 package com.reactive.rest.api.handler;
 
 import com.reactive.rest.dto.Transaction;
+import com.reactive.rest.dto.TransactionList;
 import com.reactive.rest.engine.TransactionApiEngine;
 import com.reactive.rest.service.TransactionService;
 import java.net.URI;
@@ -39,6 +40,23 @@ public class TransactionsApiHandler extends TransactionApiEngine {
         .onErrorResume(
             e -> {
               log.error("Create new transaction error: " + e.getMessage());
+              return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
+            });
+  }
+
+  /**
+   * Operation return paginated transaction list for selected account
+   *
+   * @return - all the products info as part of ServerResponse
+   */
+  public Mono<ServerResponse> getTransactionsForAccount(ServerRequest serverRequest) {
+
+    return ServerResponse.ok()
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(this.getTransactionListForAccount(serverRequest), TransactionList.class)
+        .onErrorResume(
+            e -> {
+              log.error("Get transaction list for account error: " + e.getMessage());
               return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
             });
   }

@@ -26,7 +26,7 @@ public class ClientsApiHandler extends ClientsApiEngine {
   }
 
   /**
-   * Operation create new client without accounts, with status active
+   * Operation create new client without accounts
    *
    * @return - all the products info as part of ServerResponse
    */
@@ -44,8 +44,7 @@ public class ClientsApiHandler extends ClientsApiEngine {
   }
 
   /**
-   * Operation return client with all accounts (full client structure), return only client with
-   * status active
+   * Operation return client with all accounts (full client structure)
    *
    * @return - all the products info as part of ServerResponse
    */
@@ -62,7 +61,7 @@ public class ClientsApiHandler extends ClientsApiEngine {
   }
 
   /**
-   * Operation return client list status active
+   * Operation return client list
    *
    * @return - all the products info as part of ServerResponse
    */

@@ -3,10 +3,10 @@
  */
 package com.reactive.rest.api;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
-import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 
 import com.reactive.rest.api.handler.TransactionsApiHandler;
+import com.reactive.rest.dto.Client;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -56,5 +56,39 @@ public class TransactionsApi {
   public RouterFunction<ServerResponse> createTransaction(TransactionsApiHandler handler) {
     return RouterFunctions.route(
         POST("/transaction").and(accept(MediaType.APPLICATION_JSON)), handler::createTransaction);
+  }
+
+  @Bean
+  @RouterOperations({
+    @RouterOperation(
+        path = "/transaction/account/{id}",
+        produces = {"application/json"},
+        consumes = {"application/json"},
+        method = RequestMethod.GET,
+        params = {"page"},
+        operation =
+            @Operation(
+                operationId = "getTransactionsForAccount",
+                summary = "Get transaction list for account",
+                description = "Operation return paginated transaction list for selected account",
+                responses = {
+                  @ApiResponse(
+                      responseCode = "200",
+                      description = "OK",
+                      content = @Content(schema = @Schema(implementation = Client.class))),
+                  @ApiResponse(responseCode = "400", description = "Bad Request")
+                }))
+  })
+  @RequestMapping(
+      value = "/transaction/account/{id}",
+      produces = {"application/json"},
+      consumes = {"application/json"},
+      method = RequestMethod.GET)
+  @SuppressWarnings({"all"})
+  public RouterFunction<ServerResponse> getTransactionsForAccount(TransactionsApiHandler handler) {
+    return RouterFunctions.route(
+        GET("/transaction/account/{id}")
+            .and(queryParam("page", t -> true).and(accept(MediaType.APPLICATION_JSON))),
+        handler::getTransactionsForAccount);
   }
 }

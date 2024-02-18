@@ -44,3 +44,7 @@ logging:
     io.r2dbc.postgresql.QUERY: DEBUG # for queries
     io.r2dbc.postgresql.PARAM: DEBUG # for parameters
   config: classpath:logback-spring.xml
+
+trx:
+  page:
+    size: 5

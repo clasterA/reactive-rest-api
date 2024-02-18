@@ -11,9 +11,11 @@ import com.reactive.rest.repository.TransactionEntity;
 import com.reactive.rest.repository.TransactionRepository;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -26,6 +28,9 @@ public class TransactionServiceImpl implements TransactionService {
   private final TransactionRepository transactionRepository;
   private final CommonListOfError commonListOfError;
   private final CommonMapper mapper;
+
+  @Value("${trx.page.size:5}")
+  protected final int pageSize = 5;
 
   @Override
   public @NotNull Mono<Transaction> createTransaction(CreateTransactionCommand command) {
@@ -57,6 +62,26 @@ public class TransactionServiceImpl implements TransactionService {
                       trx.setEndAmount(BigDecimal.ZERO);
                       return Mono.just(trx);
                     }));
+  }
+
+  @Override
+  public @NotNull Mono<List<Transaction>> getTransactionListForAccount(
+      @NotNull UUID accGuid, int page) {
+
+    // -1 is added to start get first page with number 1
+    var pageOffset = (page - 1) * pageSize;
+
+    return Mono.defer(
+            () ->
+                transactionRepository
+                    .getLastTransactionForAccount(accGuid, pageOffset, pageSize)
+                    .collectList()
+                    .map(mapper::mapTransactionList))
+        .doOnEach(clientList -> log.debug("Transaction data : {}", clientList))
+        .onErrorResume(
+            ex ->
+                commonListOfError.badRequestError(
+                    "Get transaction list for account", ex.getMessage()));
   }
 
   /**
