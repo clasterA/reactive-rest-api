@@ -44,7 +44,7 @@ public class ClientServiceImpl implements ClientService {
     return clientRepository
         .findByGuid(guid)
         .map(mapper::map)
-        .switchIfEmpty(Mono.error(() -> new RuntimeException("Client not found")));
+        .switchIfEmpty(commonListOfError.badRequestError("Get client by guid", "Client not found"));
   }
 
   @Override

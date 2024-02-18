@@ -5,11 +5,13 @@ package com.reactive.rest.mapper;
 
 import com.reactive.rest.dto.Account;
 import com.reactive.rest.dto.Client;
+import com.reactive.rest.dto.ExchangeRate;
 import com.reactive.rest.dto.Transaction;
 import com.reactive.rest.enums.ClientStatusEnum;
 import com.reactive.rest.enums.TransactionTypeEnum;
 import com.reactive.rest.repository.AccountEntity;
 import com.reactive.rest.repository.ClientEntity;
+import com.reactive.rest.repository.ExchangeRateEntity;
 import com.reactive.rest.repository.TransactionEntity;
 import java.util.List;
 import org.mapstruct.*;
@@ -24,6 +26,10 @@ public interface CommonMapper {
   Account map(AccountEntity source);
 
   AccountEntity map(Account source);
+
+  ExchangeRate map(ExchangeRateEntity source);
+
+  ExchangeRateEntity map(ExchangeRate source);
 
   @Mapping(target = "trxType", expression = "java(getTransactionTypeEnumFromString(source))")
   Transaction map(TransactionEntity source);

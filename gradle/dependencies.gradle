@@ -24,6 +24,7 @@ ext {
                     backport: "1.0.0",
             ],
             postgresql: [
+                    r2dbcSpring: "6.1.2",
                     r2dbcPostgresql: "1.0.4.RELEASE",
                     ver: "42.7.1",
             ],
@@ -82,7 +83,7 @@ ext {
                 ],
 
                 r2dbc: [
-                        "org.springframework:spring-r2dbc:6.1.2",
+                        "org.springframework:spring-r2dbc:$versions.postgresql.r2dbcSpring",
                 ],
 
                 postgresql: [
@@ -110,7 +111,8 @@ ext {
                         "commons-codec:commons-codec:$versions.commons.codec",
                         "commons-io:commons-io:$versions.commons.io",
                         "commons-validator:commons-validator:$versions.commons.validator",
-                        "org.modelmapper:modelmapper:$versions.commons.modelmapper"
+                        "org.modelmapper:modelmapper:$versions.commons.modelmapper",
+                        "com.jtransc:jtransc-rt:0.6.8"
                 ],
                 testContainers       : [
                         "org.testcontainers:postgresql:$versions.testContainer",
@@ -127,5 +129,3 @@ allprojects {
         exclude module: 'commons-logging'
     }
 }
-
-

@@ -4,6 +4,7 @@
 package com.reactive.rest.service;
 
 import com.reactive.rest.command.CreateTransactionCommand;
+import com.reactive.rest.dto.ExchangeRate;
 import com.reactive.rest.dto.Transaction;
 import com.reactive.rest.enums.TransactionTypeEnum;
 import com.reactive.rest.error.CommonListOfError;
@@ -12,6 +13,8 @@ import com.reactive.rest.repository.TransactionEntity;
 import com.reactive.rest.repository.TransactionRepository;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +30,7 @@ import reactor.core.publisher.Mono;
 public class TransactionServiceImpl implements TransactionService {
 
   private final AccountService accountService;
+  private final ExchangeRateService exchangeRateService;
   private final TransactionRepository transactionRepository;
   private final CommonListOfError commonListOfError;
   private final CommonMapper mapper;
@@ -34,25 +38,85 @@ public class TransactionServiceImpl implements TransactionService {
   @Value("${trx.page.size:5}")
   protected final int pageSize = 5;
 
+  /**
+   * 1. external incoming transaction - Debit 2. external outgoing transaction - Credit 3. internal
+   * transfer transaction - Debit / Credit
+   *
+   * @param command
+   * @return
+   */
   @Override
   @Transactional
   public @NotNull Mono<List<Transaction>> createTransactions(CreateTransactionCommand command) {
 
     return getLastTransactionForAccount(command.getAccGuid())
-        .flatMap(transaction -> createTransactionRequest(command, transaction, true))
         .flatMap(
             trx1 -> {
               if (command.getCorrAccGuid() != null) {
                 return getLastTransactionForAccount(command.getCorrAccGuid())
-                    .flatMap(transaction -> createTransactionRequest(command, transaction, false))
                     .flatMap(trx2 -> Mono.just(List.of(trx1, trx2)));
               } else {
                 return Mono.just(List.of(trx1));
               }
             })
+        .flatMap(
+            trxList -> {
+              // internal money transfer
+              if (trxList.size() == 2) {
+                if (!trxList.getFirst().getAccCurrency().equals(command.getTrxCurrency())
+                    && !trxList.getLast().getAccCurrency().equals(command.getTrxCurrency())) {
+                  return commonListOfError.badRequestError(
+                      "Create transactions",
+                      "Transaction currency not match any accounts currency");
+                }
+
+                switch (command.getTrxType()) {
+                  case DEBIT -> {
+                    if (!trxList.getFirst().getAccCurrency().equals(command.getTrxCurrency())) {
+                      return commonListOfError.badRequestError(
+                          "Create transaction not match with receiver account currency",
+                          "Transaction currency not match");
+                    }
+                    return Mono.zip(
+                        Mono.just(trxList),
+                        exchangeRateService.getRateBaseCurrencyAndCurrency(
+                            trxList.getFirst().getAccCurrency(),
+                            trxList.getLast().getAccCurrency()));
+                  }
+                  case CREDIT -> {
+                    if (!trxList.getLast().getAccCurrency().equals(command.getTrxCurrency())) {
+                      return commonListOfError.badRequestError(
+                          "Create transaction not match with receiver account currency",
+                          "Transaction currency not match");
+                    }
+                    return Mono.zip(
+                        Mono.just(trxList),
+                        exchangeRateService.getRateBaseCurrencyAndCurrency(
+                            trxList.getLast().getAccCurrency(),
+                            trxList.getFirst().getAccCurrency()));
+                  }
+                  default -> {
+                    return commonListOfError.badRequestError(
+                        "Create transaction", "Transaction type not match");
+                  }
+                }
+
+              } else {
+                // external transfer can be only in the selected account currency
+                if (!trxList.getFirst().getAccCurrency().equals(command.getTrxCurrency())) {
+                  return commonListOfError.badRequestError(
+                      "Create transaction", "Transaction currency not match");
+                }
+                return Mono.zip(
+                    Mono.just(trxList),
+                    exchangeRateService.getRateBaseCurrencyAndCurrency(
+                        trxList.getFirst().getAccCurrency(), command.getTrxCurrency()));
+              }
+            })
+        .flatMap(tuple -> createTransactionRequest(command, tuple.getT1(), tuple.getT2()))
         .flatMap(trxList -> transactionRepository.saveAll(trxList).map(mapper::map).collectList())
         .onErrorResume(
-            ex -> commonListOfError.badRequestError("Create transactions", ex.getMessage()));
+            ex -> commonListOfError.badRequestError("Create transactions error", ex.getMessage()));
   }
 
   @Override
@@ -101,38 +165,61 @@ public class TransactionServiceImpl implements TransactionService {
    * represents a transfer from the account.
    *
    * @param command - create transaction command
-   * @param transaction - last transaction for selected account
-   * @param mainAccount - when true, create transaction for main account, when false create
-   *     transaction for correspondence account
+   * @param transactions - transactions list to processing, can't be more than two transaction
+   * @param exchangeRate - pass exchange rate, when transaction currency is different with one of
+   *     the account currency transaction for correspondence account
    * @return TransactionEntity
    */
-  private Mono<TransactionEntity> createTransactionRequest(
-      CreateTransactionCommand command, Transaction transaction, boolean mainAccount) {
+  private Mono<List<TransactionEntity>> createTransactionRequest(
+      CreateTransactionCommand command, List<Transaction> transactions, ExchangeRate exchangeRate) {
 
-    var reverseTrxType =
-        command.getTrxType().equals(TransactionTypeEnum.CREDIT)
-            ? TransactionTypeEnum.DEBIT
-            : TransactionTypeEnum.CREDIT;
-    var trxType = mainAccount ? command.getTrxType() : reverseTrxType;
+    List<Transaction> newTransactions = new ArrayList<>();
 
-    var newTransaction = new Transaction();
-    newTransaction.setGuid(UUID.randomUUID());
-    newTransaction.setAccGuid(transaction.getAccGuid());
-    newTransaction.setAccCurrency(transaction.getAccCurrency());
-    newTransaction.setTrxType(trxType);
-    newTransaction.setTrxAmount(command.getTrxAmount());
-    newTransaction.setTrxCurrency(command.getTrxCurrency());
-    newTransaction.setBeginAmount(transaction.getEndAmount());
+    transactions.forEach(
+        transaction -> {
+          var trxType = command.getTrxType();
+          var newTransaction = new Transaction();
+          newTransaction.setGuid(UUID.randomUUID());
+          newTransaction.setAccGuid(transaction.getAccGuid());
+          newTransaction.setTrxAmount(command.getTrxAmount());
+          newTransaction.setTrxCurrency(command.getTrxCurrency());
 
-    switch (trxType) {
-      case DEBIT ->
-          newTransaction.setEndAmount(
-              newTransaction.getBeginAmount().add(newTransaction.getTrxAmount()));
-      case CREDIT ->
-          newTransaction.setEndAmount(
-              newTransaction.getBeginAmount().subtract(newTransaction.getTrxAmount()));
-    }
+          // first transaction for base account
+          if (command.getAccGuid().equals(transaction.getAccGuid())) {
+            newTransaction.setAccCurrency(transaction.getAccCurrency());
+            newTransaction.setBeginAmount(transaction.getEndAmount());
+          } else {
+            // for second transaction (correspondence account), make reversing transaction type
+            trxType =
+                command.getTrxType().equals(TransactionTypeEnum.CREDIT)
+                    ? TransactionTypeEnum.DEBIT
+                    : TransactionTypeEnum.CREDIT;
+            newTransaction.setAccCurrency(transaction.getAccCurrency());
+            newTransaction.setBeginAmount(transaction.getEndAmount());
+          }
+          newTransaction.setTrxType(trxType);
 
-    return Mono.just(mapper.map(newTransaction));
+          switch (trxType) {
+            case DEBIT ->
+                newTransaction.setEndAmount(
+                    newTransaction.getBeginAmount().add(newTransaction.getTrxAmount()));
+            case CREDIT -> {
+              var substractAmount = newTransaction.getTrxAmount();
+              if (exchangeRate.getCurrency() != null
+                  && exchangeRate.getCurrency().equals(transaction.getAccCurrency())) {
+                substractAmount =
+                    newTransaction
+                        .getTrxAmount()
+                        .multiply(exchangeRate.getRate())
+                        .setScale(2, RoundingMode.HALF_UP.ordinal());
+              }
+              newTransaction.setEndAmount(
+                  newTransaction.getBeginAmount().subtract(substractAmount));
+            }
+          }
+          newTransactions.add(newTransaction);
+        });
+
+    return Mono.just(mapper.mapTransactionEntityList(newTransactions));
   }
 }
