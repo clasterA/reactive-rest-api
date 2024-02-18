@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -28,6 +29,7 @@ public class ClientServiceImpl implements ClientService {
   private final CommonMapper mapper;
 
   @Override
+  @Transactional
   public @NotNull Mono<Client> createClient(CreateClientCommand command) {
 
     return clientRepository
@@ -55,6 +57,7 @@ public class ClientServiceImpl implements ClientService {
   }
 
   @Override
+  @Transactional
   public @NotNull Mono<Client> removeClient(@NotNull UUID guid) {
 
     return clientRepository

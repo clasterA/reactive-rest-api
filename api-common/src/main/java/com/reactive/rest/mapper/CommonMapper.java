@@ -58,4 +58,6 @@ public interface CommonMapper {
   List<Client> mapClientList(List<ClientEntity> sourceList);
 
   List<Transaction> mapTransactionList(List<TransactionEntity> sourceList);
+
+  List<TransactionEntity> mapTransactionEntityList(List<Transaction> sourceList);
 }

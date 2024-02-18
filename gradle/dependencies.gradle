@@ -24,7 +24,7 @@ ext {
                     backport: "1.0.0",
             ],
             postgresql: [
-                    r2dbcPostgresql: "0.8.13.RELEASE",
+                    r2dbcPostgresql: "1.0.4.RELEASE",
                     ver: "42.7.1",
             ],
             openApi: [
@@ -39,6 +39,7 @@ ext {
                 springBootWeb: [
                         "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion",
                         "org.springframework.boot:spring-boot-starter-actuator:$springBootVersion",
+                        "org.springframework.boot:spring-boot-starter-parent:$springBootVersion",
                         "org.springframework.boot:spring-boot-starter-validation:$springBootVersion",
                         "org.springframework.boot:spring-boot-starter-data-r2dbc:$springBootVersion",
                         "com.github.java-json-tools:json-patch:$versions.web.jsonPatch"
@@ -81,11 +82,11 @@ ext {
                 ],
 
                 r2dbc: [
-                        "org.springframework.data:spring-data-r2dbc:$springBootVersion",
+                        "org.springframework:spring-r2dbc:6.1.2",
                 ],
 
                 postgresql: [
-                        "io.r2dbc:r2dbc-postgresql:$versions.postgresql.r2dbcPostgresql",
+                        "org.postgresql:r2dbc-postgresql:$versions.postgresql.r2dbcPostgresql",
                         "org.postgresql:postgresql:$versions.postgresql.ver",
                 ],
 

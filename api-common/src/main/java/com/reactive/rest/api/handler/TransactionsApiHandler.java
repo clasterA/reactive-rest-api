@@ -3,7 +3,6 @@
  */
 package com.reactive.rest.api.handler;
 
-import com.reactive.rest.dto.Transaction;
 import com.reactive.rest.dto.TransactionList;
 import com.reactive.rest.engine.TransactionApiEngine;
 import com.reactive.rest.service.TransactionService;
@@ -36,7 +35,7 @@ public class TransactionsApiHandler extends TransactionApiEngine {
 
     return ServerResponse.created(new URI("http://localhost"))
         .contentType(MediaType.APPLICATION_JSON)
-        .body(this.createNewTransaction(serverRequest), Transaction.class)
+        .body(this.createNewTransaction(serverRequest), TransactionList.class)
         .onErrorResume(
             e -> {
               log.error("Create new transaction error: " + e.getMessage());

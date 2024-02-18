@@ -26,6 +26,9 @@ public class CreateTransactionCommand {
   @JsonProperty("accGuid")
   private UUID accGuid;
 
+  @JsonProperty("corrAccGuid")
+  private UUID corrAccGuid;
+
   @NotNull
   @JsonProperty("trxAmount")
   private BigDecimal trxAmount;

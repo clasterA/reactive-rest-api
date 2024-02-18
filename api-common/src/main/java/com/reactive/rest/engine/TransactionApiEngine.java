@@ -6,7 +6,6 @@ package com.reactive.rest.engine;
 import static org.springframework.web.reactive.function.BodyExtractors.toMono;
 
 import com.reactive.rest.command.CreateTransactionCommand;
-import com.reactive.rest.dto.Transaction;
 import com.reactive.rest.dto.TransactionList;
 import com.reactive.rest.service.TransactionService;
 import com.reactive.rest.utils.CommonUtils;
@@ -23,11 +22,17 @@ public class TransactionApiEngine {
 
   private final TransactionService transactionService;
 
-  protected Mono<Transaction> createNewTransaction(ServerRequest serverRequest) {
+  protected Mono<TransactionList> createNewTransaction(ServerRequest serverRequest) {
 
     return serverRequest
         .body(toMono(CreateTransactionCommand.class))
-        .flatMap(transactionService::createTransaction);
+        .flatMap(transactionService::createTransactions)
+        .flatMap(
+            transactions -> {
+              var trxList = new TransactionList();
+              trxList.setTransactions(transactions);
+              return Mono.just(trxList);
+            });
   }
 
   protected Mono<TransactionList> getTransactionListForAccount(ServerRequest serverRequest) {

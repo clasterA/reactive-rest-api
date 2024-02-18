@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 public interface TransactionService {
 
   @NotNull
-  Mono<Transaction> createTransaction(@Valid CreateTransactionCommand command);
+  Mono<List<Transaction>> createTransactions(@Valid CreateTransactionCommand command);
 
   @NotNull
   Mono<Transaction> getLastTransactionForAccount(@NotNull UUID accGuid);

@@ -5,6 +5,7 @@ package com.reactive.rest.service;
 
 import com.reactive.rest.command.CreateTransactionCommand;
 import com.reactive.rest.dto.Transaction;
+import com.reactive.rest.enums.TransactionTypeEnum;
 import com.reactive.rest.error.CommonListOfError;
 import com.reactive.rest.mapper.CommonMapper;
 import com.reactive.rest.repository.TransactionEntity;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -33,14 +35,24 @@ public class TransactionServiceImpl implements TransactionService {
   protected final int pageSize = 5;
 
   @Override
-  public @NotNull Mono<Transaction> createTransaction(CreateTransactionCommand command) {
+  @Transactional
+  public @NotNull Mono<List<Transaction>> createTransactions(CreateTransactionCommand command) {
 
     return getLastTransactionForAccount(command.getAccGuid())
-        .map(transaction -> createTransactionRequest(command, transaction))
-        .flatMap(transactionRepository::save)
+        .flatMap(transaction -> createTransactionRequest(command, transaction, true))
+        .flatMap(
+            trx1 -> {
+              if (command.getCorrAccGuid() != null) {
+                return getLastTransactionForAccount(command.getCorrAccGuid())
+                    .flatMap(transaction -> createTransactionRequest(command, transaction, false))
+                    .flatMap(trx2 -> Mono.just(List.of(trx1, trx2)));
+              } else {
+                return Mono.just(List.of(trx1));
+              }
+            })
+        .flatMap(trxList -> transactionRepository.saveAll(trxList).map(mapper::map).collectList())
         .onErrorResume(
-            ex -> commonListOfError.badRequestError("Create transaction", ex.getMessage()))
-        .map(mapper::map);
+            ex -> commonListOfError.badRequestError("Create transactions", ex.getMessage()));
   }
 
   @Override
@@ -88,23 +100,31 @@ public class TransactionServiceImpl implements TransactionService {
    * A debit entry in an account represents a transfer of value to that account, and a credit entry
    * represents a transfer from the account.
    *
-   * @param command
-   * @param transaction
-   * @return
+   * @param command - create transaction command
+   * @param transaction - last transaction for selected account
+   * @param mainAccount - when true, create transaction for main account, when false create
+   *     transaction for correspondence account
+   * @return TransactionEntity
    */
-  private TransactionEntity createTransactionRequest(
-      CreateTransactionCommand command, Transaction transaction) {
+  private Mono<TransactionEntity> createTransactionRequest(
+      CreateTransactionCommand command, Transaction transaction, boolean mainAccount) {
+
+    var reverseTrxType =
+        command.getTrxType().equals(TransactionTypeEnum.CREDIT)
+            ? TransactionTypeEnum.DEBIT
+            : TransactionTypeEnum.CREDIT;
+    var trxType = mainAccount ? command.getTrxType() : reverseTrxType;
 
     var newTransaction = new Transaction();
     newTransaction.setGuid(UUID.randomUUID());
     newTransaction.setAccGuid(transaction.getAccGuid());
     newTransaction.setAccCurrency(transaction.getAccCurrency());
-    newTransaction.setTrxType(command.getTrxType());
+    newTransaction.setTrxType(trxType);
     newTransaction.setTrxAmount(command.getTrxAmount());
     newTransaction.setTrxCurrency(command.getTrxCurrency());
     newTransaction.setBeginAmount(transaction.getEndAmount());
 
-    switch (command.getTrxType()) {
+    switch (trxType) {
       case DEBIT ->
           newTransaction.setEndAmount(
               newTransaction.getBeginAmount().add(newTransaction.getTrxAmount()));
@@ -113,6 +133,6 @@ public class TransactionServiceImpl implements TransactionService {
               newTransaction.getBeginAmount().subtract(newTransaction.getTrxAmount()));
     }
 
-    return mapper.map(newTransaction);
+    return Mono.just(mapper.map(newTransaction));
   }
 }
