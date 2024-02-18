@@ -5,6 +5,7 @@ package com.reactive.rest.service;
 
 import com.reactive.rest.command.CreateClientAccountCommand;
 import com.reactive.rest.dto.Account;
+import com.reactive.rest.error.CommonListOfError;
 import com.reactive.rest.mapper.CommonMapper;
 import com.reactive.rest.repository.AccountEntity;
 import com.reactive.rest.repository.AccountRepository;
@@ -22,18 +23,36 @@ import reactor.core.publisher.Mono;
 public class AccountServiceImpl implements AccountService {
 
   private final AccountRepository accountRepository;
+  private final ClientService clientService;
+  private final CommonListOfError commonListOfError;
   private final CommonMapper mapper;
 
   @Override
   public @NotNull Mono<Account> createNewClientAccount(CreateClientAccountCommand command) {
 
+    return clientService
+        .getClientByGuid(command.getClientGuid())
+        .flatMap(
+            client -> {
+              command.setClientName(client.getName());
+              return accountRepository
+                  .save(createAccountRequest(command))
+                  .onErrorResume(
+                      ex ->
+                          commonListOfError.badRequestError(
+                              "Create new client account", ex.getMessage()))
+                  .map(mapper::map);
+            });
+  }
+
+  @Override
+  public @NotNull Mono<Account> getAccountByGuid(@NotNull UUID accGuid) {
+
     return accountRepository
-        .save(createAccountRequest(command))
-        .onErrorResume(
-            ex ->
-                Mono.error(
-                    () -> new RuntimeException("Create client account error: " + ex.getMessage())))
-        .map(mapper::map);
+        .findByGuid(accGuid)
+        .map(mapper::map)
+        .switchIfEmpty(
+            commonListOfError.badRequestError("Get account by guid", "Account not found"));
   }
 
   @Override
@@ -47,7 +66,8 @@ public class AccountServiceImpl implements AccountService {
                     .map(mapper::mapAccountList))
         .doOnEach(accountList -> log.debug("Client account data : {}", accountList))
         .switchIfEmpty(
-            Mono.error(() -> new RuntimeException("Not found any accounts for this client")));
+            commonListOfError.badRequestError(
+                "Get client account list", "Not found any account for client"));
   }
 
   private AccountEntity createAccountRequest(CreateClientAccountCommand command) {

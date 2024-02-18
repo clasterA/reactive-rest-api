@@ -29,7 +29,7 @@ public class AccountsApi {
   @Bean
   @RouterOperations({
     @RouterOperation(
-        path = "/account/client/{id}",
+        path = "/account",
         produces = {"application/json"},
         consumes = {"application/json"},
         method = RequestMethod.POST,
@@ -47,15 +47,14 @@ public class AccountsApi {
                 }))
   })
   @RequestMapping(
-      value = "/account/client/{id}",
+      value = "/account",
       produces = {"application/json"},
       consumes = {"application/json"},
       method = RequestMethod.POST)
   @SuppressWarnings({"all"})
   public RouterFunction<ServerResponse> createNewClientAccount(AccountsApiHandler handler) {
     return RouterFunctions.route(
-        POST("/account/client/{id}").and(accept(MediaType.APPLICATION_JSON)),
-        handler::createNewClientAccount);
+        POST("/account").and(accept(MediaType.APPLICATION_JSON)), handler::createNewClientAccount);
   }
 
   @Bean

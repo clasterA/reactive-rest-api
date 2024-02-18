@@ -134,7 +134,6 @@ public abstract class BaseIntegrationTest extends Assertions {
     var accountCommand =
         CreateClientAccountCommand.builder()
             .clientGuid(clientGuid)
-            .clientName("TestClient")
             .name("Euro account")
             .currency("EUR")
             .build();

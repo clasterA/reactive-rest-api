@@ -6,6 +6,7 @@ package com.reactive.rest.service;
 import com.reactive.rest.command.CreateClientCommand;
 import com.reactive.rest.dto.Client;
 import com.reactive.rest.enums.ClientStatusEnum;
+import com.reactive.rest.error.CommonListOfError;
 import com.reactive.rest.mapper.CommonMapper;
 import com.reactive.rest.repository.ClientEntity;
 import com.reactive.rest.repository.ClientRepository;
@@ -23,6 +24,7 @@ import reactor.core.publisher.Mono;
 public class ClientServiceImpl implements ClientService {
 
   private final ClientRepository clientRepository;
+  private final CommonListOfError commonListOfError;
   private final CommonMapper mapper;
 
   @Override
@@ -30,8 +32,7 @@ public class ClientServiceImpl implements ClientService {
 
     return clientRepository
         .save(createClientRequest(command))
-        .onErrorResume(
-            ex -> Mono.error(() -> new RuntimeException("Create client error: " + ex.getMessage())))
+        .onErrorResume(ex -> commonListOfError.badRequestError("Create client", ex.getMessage()))
         .map(mapper::map);
   }
 
@@ -50,7 +51,7 @@ public class ClientServiceImpl implements ClientService {
     return Mono.defer(
             () -> clientRepository.getClientList().collectList().map(mapper::mapClientList))
         .doOnEach(clientList -> log.debug("Client data : {}", clientList))
-        .switchIfEmpty(Mono.error(() -> new RuntimeException("Not found any clients")));
+        .switchIfEmpty(commonListOfError.badRequestError("Get clients", "Clients not found"));
   }
 
   @Override
@@ -58,8 +59,7 @@ public class ClientServiceImpl implements ClientService {
 
     return clientRepository
         .removeClient(guid, ClientStatusEnum.CLOSED.getVal())
-        .onErrorResume(
-            ex -> Mono.error(() -> new RuntimeException("Remove client error: " + ex.getMessage())))
+        .onErrorResume(ex -> commonListOfError.badRequestError("Remove client", ex.getMessage()))
         .map(mapper::map);
   }
 

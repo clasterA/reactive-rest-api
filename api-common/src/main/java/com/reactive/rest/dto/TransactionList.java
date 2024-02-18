@@ -8,8 +8,8 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class AccountList {
+public class TransactionList {
 
-  @JsonProperty("accounts")
-  private List<Account> accounts;
+  @JsonProperty("transactions")
+  private List<Transaction> transactions;
 }

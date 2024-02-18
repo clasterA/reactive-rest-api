@@ -19,5 +19,8 @@ public interface AccountService {
   Mono<Account> createNewClientAccount(@Valid CreateClientAccountCommand command);
 
   @NotNull
+  Mono<Account> getAccountByGuid(@NotNull UUID accGuid);
+
+  @NotNull
   Mono<List<Account>> getClientAccountList(@NotNull UUID clientGuid);
 }
