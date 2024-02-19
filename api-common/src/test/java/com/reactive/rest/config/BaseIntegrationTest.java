@@ -5,15 +5,19 @@ package com.reactive.rest.config;
 
 import com.reactive.rest.command.CreateClientAccountCommand;
 import com.reactive.rest.command.CreateClientCommand;
+import com.reactive.rest.dto.Account;
+import com.reactive.rest.dto.Client;
 import com.reactive.rest.enums.ClientStatusEnum;
 import com.reactive.rest.repository.AccountRepository;
 import com.reactive.rest.repository.ClientRepository;
+import com.reactive.rest.repository.TransactionRepository;
 import com.reactive.rest.service.AccountService;
 import com.reactive.rest.service.ClientService;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TimeZone;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterAll;
@@ -59,11 +63,13 @@ public abstract class BaseIntegrationTest extends Assertions {
 
   @Autowired AccountRepository accountRepository;
 
+  @Autowired TransactionRepository transactionRepository;
+
   @LocalServerPort private Integer serverPort;
 
   protected static final Network POSTGRESQL_NETWORK = Network.newNetwork();
-  protected UUID clientGuid;
-  protected UUID accountGuid;
+  protected List<Client> clientList = new ArrayList<>();
+  protected List<Account> accountList = new ArrayList<>();
 
   protected WebTestClient webClient() {
     return WebTestClient.bindToApplicationContext(applicationContext)
@@ -129,11 +135,11 @@ public abstract class BaseIntegrationTest extends Assertions {
     Assertions.assertThat(client.getName()).isEqualTo("TestClient");
     Assertions.assertThat(client.getStatus()).isEqualTo(ClientStatusEnum.ACTIVE);
 
-    clientGuid = client.getGuid();
+    clientList.add(client);
 
     var accountCommand =
         CreateClientAccountCommand.builder()
-            .clientGuid(clientGuid)
+            .clientGuid(clientList.getFirst().getGuid())
             .name("Euro account")
             .currency("EUR")
             .build();
@@ -142,18 +148,84 @@ public abstract class BaseIntegrationTest extends Assertions {
 
     Assertions.assertThat(account).isNotNull();
     Assertions.assertThat(account.getGuid()).isNotNull();
-    Assertions.assertThat(account.getClientGuid()).isEqualTo(clientGuid);
+    Assertions.assertThat(account.getClientGuid()).isEqualTo(clientList.getFirst().getGuid());
     Assertions.assertThat(account.getName()).isEqualTo("Euro account");
     Assertions.assertThat(account.getClientName()).isEqualTo("TestClient");
     Assertions.assertThat(account.getCurrency()).isEqualTo("EUR");
 
-    accountGuid = account.getGuid();
+    accountList.add(account);
+
+    accountCommand =
+        CreateClientAccountCommand.builder()
+            .clientGuid(clientList.getFirst().getGuid())
+            .name("Usd account")
+            .currency("USD")
+            .build();
+
+    account = accountService.createNewClientAccount(accountCommand).block();
+
+    Assertions.assertThat(account).isNotNull();
+    Assertions.assertThat(account.getGuid()).isNotNull();
+    Assertions.assertThat(account.getClientGuid()).isEqualTo(clientList.getFirst().getGuid());
+    Assertions.assertThat(account.getName()).isEqualTo("Usd account");
+    Assertions.assertThat(account.getClientName()).isEqualTo("TestClient");
+    Assertions.assertThat(account.getCurrency()).isEqualTo("USD");
+
+    accountList.add(account);
+
+    accountCommand =
+        CreateClientAccountCommand.builder()
+            .clientGuid(clientList.getFirst().getGuid())
+            .name("Gbp account")
+            .currency("GBP")
+            .build();
+
+    account = accountService.createNewClientAccount(accountCommand).block();
+
+    Assertions.assertThat(account).isNotNull();
+    Assertions.assertThat(account.getGuid()).isNotNull();
+    Assertions.assertThat(account.getClientGuid()).isEqualTo(clientList.getFirst().getGuid());
+    Assertions.assertThat(account.getName()).isEqualTo("Gbp account");
+    Assertions.assertThat(account.getClientName()).isEqualTo("TestClient");
+    Assertions.assertThat(account.getCurrency()).isEqualTo("GBP");
+
+    accountList.add(account);
+
+    clientCommand = CreateClientCommand.builder().name("TestClient2").build();
+
+    client = clientService.createClient(clientCommand).block();
+
+    Assertions.assertThat(client).isNotNull();
+    Assertions.assertThat(client.getGuid()).isNotNull();
+    Assertions.assertThat(client.getName()).isEqualTo("TestClient2");
+    Assertions.assertThat(client.getStatus()).isEqualTo(ClientStatusEnum.ACTIVE);
+
+    clientList.add(client);
+
+    accountCommand =
+        CreateClientAccountCommand.builder()
+            .clientGuid(clientList.getLast().getGuid())
+            .name("Euro account")
+            .currency("EUR")
+            .build();
+
+    account = accountService.createNewClientAccount(accountCommand).block();
+
+    Assertions.assertThat(account).isNotNull();
+    Assertions.assertThat(account.getGuid()).isNotNull();
+    Assertions.assertThat(account.getClientGuid()).isEqualTo(clientList.getLast().getGuid());
+    Assertions.assertThat(account.getName()).isEqualTo("Euro account");
+    Assertions.assertThat(account.getClientName()).isEqualTo("TestClient2");
+    Assertions.assertThat(account.getCurrency()).isEqualTo("EUR");
+
+    accountList.add(account);
   }
 
   @AfterAll
   @DisplayName("Clear test db after test is completed")
   void clearSetUp() {
 
+    transactionRepository.deleteAll().block();
     accountRepository.deleteAll().block();
     clientRepository.deleteAll().block();
   }

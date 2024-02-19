@@ -1,0 +1,7 @@
+{
+  "accGuid": "%s",
+  "corrAccGuid": "%s",
+  "trxAmount": 10.01,
+  "trxCurrency": "USD",
+  "trxType": "Debit"
+}

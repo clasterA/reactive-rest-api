@@ -19,12 +19,14 @@ class AccountServiceTest extends BaseIntegrationTest {
   @DisplayName("Test should return client accounts by client guid from postgresql db.")
   void shouldGetClientAccountListByClientGuidTest() {
 
-    var accounts = accountService.getClientAccountList(clientGuid).block();
+    var accounts = accountService.getClientAccountList(clientList.getFirst().getGuid()).block();
 
     Assertions.assertThat(accounts).isNotNull();
-    Assertions.assertThat(accounts).hasSize(1);
-    Assertions.assertThat(accounts.getFirst().getGuid()).isEqualTo(accountGuid);
-    Assertions.assertThat(accounts.getFirst().getClientGuid()).isEqualTo(clientGuid);
+    Assertions.assertThat(accounts).hasSize(3);
+    Assertions.assertThat(accounts.getFirst().getGuid())
+        .isEqualTo(accountList.getFirst().getGuid());
+    Assertions.assertThat(accounts.getFirst().getClientGuid())
+        .isEqualTo(clientList.getFirst().getGuid());
     Assertions.assertThat(accounts.getFirst().getClientName()).isEqualTo("TestClient");
     Assertions.assertThat(accounts.getFirst().getName()).isEqualTo("Euro account");
     Assertions.assertThat(accounts.getFirst().getCurrency()).isEqualTo("EUR");

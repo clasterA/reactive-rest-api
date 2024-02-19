@@ -111,8 +111,7 @@ ext {
                         "commons-codec:commons-codec:$versions.commons.codec",
                         "commons-io:commons-io:$versions.commons.io",
                         "commons-validator:commons-validator:$versions.commons.validator",
-                        "org.modelmapper:modelmapper:$versions.commons.modelmapper",
-                        "com.jtransc:jtransc-rt:0.6.8"
+                        "org.modelmapper:modelmapper:$versions.commons.modelmapper"
                 ],
                 testContainers       : [
                         "org.testcontainers:postgresql:$versions.testContainer",

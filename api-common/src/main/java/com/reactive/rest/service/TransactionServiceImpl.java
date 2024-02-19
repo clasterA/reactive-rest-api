@@ -13,7 +13,6 @@ import com.reactive.rest.repository.TransactionEntity;
 import com.reactive.rest.repository.TransactionRepository;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -39,11 +38,12 @@ public class TransactionServiceImpl implements TransactionService {
   protected final int pageSize = 5;
 
   /**
-   * 1. external incoming transaction - Debit 2. external outgoing transaction - Credit 3. internal
-   * transfer transaction - Debit / Credit
+   * Accept, external incoming transaction - Debit, external outgoing transaction - Credit, internal
+   * money transfer - Debit / Credit
    *
-   * @param command
-   * @return
+   * @param command - Create transaction command
+   * @return - created transaction list. One transaction for external incoming / outgoing operation.
+   *     Two transaction for internal money transfer.
    */
   @Override
   @Transactional
@@ -75,7 +75,7 @@ public class TransactionServiceImpl implements TransactionService {
                     if (!trxList.getFirst().getAccCurrency().equals(command.getTrxCurrency())) {
                       return commonListOfError.badRequestError(
                           "Create transaction not match with receiver account currency",
-                          "Transaction currency not match");
+                          "Transaction currency not match. Money transfer, Debit operation");
                     }
                     return Mono.zip(
                         Mono.just(trxList),
@@ -87,7 +87,7 @@ public class TransactionServiceImpl implements TransactionService {
                     if (!trxList.getLast().getAccCurrency().equals(command.getTrxCurrency())) {
                       return commonListOfError.badRequestError(
                           "Create transaction not match with receiver account currency",
-                          "Transaction currency not match");
+                          "Transaction currency not match. Money transfer, Credit operation");
                     }
                     return Mono.zip(
                         Mono.just(trxList),
@@ -211,8 +211,9 @@ public class TransactionServiceImpl implements TransactionService {
                     newTransaction
                         .getTrxAmount()
                         .multiply(exchangeRate.getRate())
-                        .setScale(2, RoundingMode.HALF_UP.ordinal());
+                        .setScale(2, BigDecimal.ROUND_HALF_UP);
               }
+              newTransaction.setTrxAmount(substractAmount);
               newTransaction.setEndAmount(
                   newTransaction.getBeginAmount().subtract(substractAmount));
             }

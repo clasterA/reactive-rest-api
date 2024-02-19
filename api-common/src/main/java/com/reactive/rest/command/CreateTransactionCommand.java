@@ -3,7 +3,6 @@
  */
 package com.reactive.rest.command;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.reactive.rest.enums.TransactionTypeEnum;
@@ -27,12 +26,8 @@ public class CreateTransactionCommand {
   @JsonProperty("accGuid")
   private UUID accGuid;
 
-  @JsonIgnore private String accCurrency;
-
   @JsonProperty("corrAccGuid")
   private UUID corrAccGuid;
-
-  @JsonIgnore private String corrCurrency;
 
   @NotNull
   @JsonProperty("trxAmount")

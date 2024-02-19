@@ -56,7 +56,7 @@ class ClientsApiTest extends BaseIntegrationTest {
 
     webClient()
         .get()
-        .uri(uriBuilder -> uriBuilder.path("/client/" + clientGuid).build())
+        .uri(uriBuilder -> uriBuilder.path("/client/" + clientList.getFirst().getGuid()).build())
         .accept(MediaType.APPLICATION_JSON)
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         .exchange()
@@ -65,7 +65,7 @@ class ClientsApiTest extends BaseIntegrationTest {
         .expectBody(Client.class)
         .value(
             client -> {
-              Assertions.assertThat(client.getGuid()).isEqualTo(clientGuid);
+              Assertions.assertThat(client.getGuid()).isEqualTo(clientList.getFirst().getGuid());
               Assertions.assertThat(client.getName()).isEqualTo("TestClient");
               Assertions.assertThat(client.getStatus()).isEqualTo(ClientStatusEnum.ACTIVE);
             });
@@ -78,7 +78,7 @@ class ClientsApiTest extends BaseIntegrationTest {
 
     webClient()
         .delete()
-        .uri(uriBuilder -> uriBuilder.path("/client/" + clientGuid).build())
+        .uri(uriBuilder -> uriBuilder.path("/client/" + clientList.getFirst().getGuid()).build())
         .accept(MediaType.APPLICATION_JSON)
         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
         .exchange()
@@ -87,7 +87,7 @@ class ClientsApiTest extends BaseIntegrationTest {
         .expectBody(Client.class)
         .value(
             client -> {
-              Assertions.assertThat(client.getGuid()).isEqualTo(clientGuid);
+              Assertions.assertThat(client.getGuid()).isEqualTo(clientList.getFirst().getGuid());
               Assertions.assertThat(client.getName()).isEqualTo("TestClient");
               Assertions.assertThat(client.getStatus()).isEqualTo(ClientStatusEnum.CLOSED);
             });
