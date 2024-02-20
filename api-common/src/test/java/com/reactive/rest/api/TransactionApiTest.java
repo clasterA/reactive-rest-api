@@ -25,7 +25,7 @@ class TransactionApiTest extends BaseIntegrationTest {
   private String createInternalMoneyTransferUsdToGbpCreditTrx;
 
   @BeforeAll
-  @DisplayName("Initialize clients test variables")
+  @DisplayName("Initialize transactions test variables")
   public void init() {
 
     createExternalIncomeEurTrxJson =
@@ -380,6 +380,98 @@ class TransactionApiTest extends BaseIntegrationTest {
                   .isEqualByComparingTo(new BigDecimal(5));
               Assertions.assertThat(transactionList.getTransactions().getLast().getTrxType())
                   .isEqualTo(TransactionTypeEnum.DEBIT);
+            });
+  }
+
+  @Test
+  @Order(7)
+  @DisplayName(
+      "Get paginated transaction list for account, from route: GET path = /transaction/account, application/json")
+  void shouldGetPaginatedTransactionListForAccountTest() {
+
+    webClient()
+        .get()
+        .uri(
+            uriBuilder ->
+                uriBuilder
+                    .path("/transaction/account/" + accountList.getFirst().getGuid())
+                    .queryParam("page", "1")
+                    .build())
+        .accept(MediaType.APPLICATION_JSON)
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus()
+        .isOk()
+        .expectBody(TransactionList.class)
+        .value(
+            transactionList -> {
+              Assertions.assertThat(transactionList.getTransactions()).hasSize(6);
+
+              Assertions.assertThat(transactionList.getTransactions().get(5).getBeginAmount())
+                  .isEqualByComparingTo(BigDecimal.ZERO);
+              Assertions.assertThat(transactionList.getTransactions().get(5).getTrxCurrency())
+                  .isEqualTo("EUR");
+              Assertions.assertThat(transactionList.getTransactions().get(5).getTrxAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(5).getEndAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(5).getTrxType())
+                  .isEqualTo(TransactionTypeEnum.DEBIT);
+
+              Assertions.assertThat(transactionList.getTransactions().get(4).getBeginAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(4).getTrxCurrency())
+                  .isEqualTo("EUR");
+              Assertions.assertThat(transactionList.getTransactions().get(4).getTrxAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(4).getEndAmount())
+                  .isEqualByComparingTo(BigDecimal.ZERO);
+              Assertions.assertThat(transactionList.getTransactions().get(4).getTrxType())
+                  .isEqualTo(TransactionTypeEnum.CREDIT);
+
+              Assertions.assertThat(transactionList.getTransactions().get(3).getBeginAmount())
+                  .isEqualByComparingTo(BigDecimal.ZERO);
+              Assertions.assertThat(transactionList.getTransactions().get(3).getTrxCurrency())
+                  .isEqualTo("EUR");
+              Assertions.assertThat(transactionList.getTransactions().get(3).getTrxAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(3).getEndAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(3).getTrxType())
+                  .isEqualTo(TransactionTypeEnum.DEBIT);
+
+              Assertions.assertThat(transactionList.getTransactions().get(2).getBeginAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(2).getTrxCurrency())
+                  .isEqualTo("EUR");
+              Assertions.assertThat(transactionList.getTransactions().get(2).getTrxAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(2).getEndAmount())
+                  .isEqualByComparingTo(BigDecimal.ZERO);
+              Assertions.assertThat(transactionList.getTransactions().get(2).getTrxType())
+                  .isEqualTo(TransactionTypeEnum.CREDIT);
+
+              Assertions.assertThat(transactionList.getTransactions().get(1).getBeginAmount())
+                  .isEqualByComparingTo(BigDecimal.ZERO);
+              Assertions.assertThat(transactionList.getTransactions().get(1).getTrxCurrency())
+                  .isEqualTo("EUR");
+              Assertions.assertThat(transactionList.getTransactions().get(1).getTrxAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(1).getEndAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(1).getTrxType())
+                  .isEqualTo(TransactionTypeEnum.DEBIT);
+
+              Assertions.assertThat(transactionList.getTransactions().get(0).getBeginAmount())
+                  .isEqualByComparingTo(new BigDecimal("10.01"));
+              Assertions.assertThat(transactionList.getTransactions().get(0).getTrxCurrency())
+                  .isEqualTo("USD");
+              Assertions.assertThat(transactionList.getTransactions().get(0).getTrxAmount())
+                  .isEqualByComparingTo(new BigDecimal("9.31"));
+              Assertions.assertThat(transactionList.getTransactions().get(0).getEndAmount())
+                  .isEqualByComparingTo(new BigDecimal("0.70"));
+              Assertions.assertThat(transactionList.getTransactions().get(0).getTrxType())
+                  .isEqualTo(TransactionTypeEnum.CREDIT);
             });
   }
 }

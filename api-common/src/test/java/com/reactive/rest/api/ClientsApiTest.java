@@ -5,6 +5,7 @@ package com.reactive.rest.api;
 
 import com.reactive.rest.config.BaseIntegrationTest;
 import com.reactive.rest.dto.Client;
+import com.reactive.rest.dto.ClientList;
 import com.reactive.rest.enums.ClientStatusEnum;
 import com.reactive.rest.utils.CommonUtils;
 import org.assertj.core.api.Assertions;
@@ -51,7 +52,31 @@ class ClientsApiTest extends BaseIntegrationTest {
 
   @Test
   @Order(2)
-  @DisplayName("Get existing client, from route: GET path = /client, application/json")
+  @DisplayName("Get existing client list, from route: GET path = /client, application/json")
+  void shouldGetExistingClientSJsonTest() {
+
+    webClient()
+        .get()
+        .uri(uriBuilder -> uriBuilder.path("/client").build())
+        .accept(MediaType.APPLICATION_JSON)
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus()
+        .isOk()
+        .expectBody(ClientList.class)
+        .value(
+            clientList -> {
+              Assertions.assertThat(clientList.getClients()).hasSize(3);
+              Assertions.assertThat(clientList.getClients().getFirst().getName())
+                  .isEqualTo("TEST-AAA");
+              Assertions.assertThat(clientList.getClients().getLast().getName())
+                  .isEqualTo("TestClient");
+            });
+  }
+
+  @Test
+  @Order(3)
+  @DisplayName("Get existing client, from route: GET path = /client/{id}, application/json")
   void shouldGetExistingClientJsonTest() {
 
     webClient()
@@ -72,7 +97,7 @@ class ClientsApiTest extends BaseIntegrationTest {
   }
 
   @Test
-  @Order(3)
+  @Order(4)
   @DisplayName("Remove existing client, from route: DELETE path = /client, application/json")
   void shouldRemoveExistingClientJsonTest() {
 

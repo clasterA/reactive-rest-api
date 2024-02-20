@@ -10,7 +10,6 @@ import com.reactive.rest.service.AccountService;
 import java.net.URI;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -35,12 +34,7 @@ public class AccountsApiHandler extends AccountsApiEngine {
 
     return ServerResponse.created(new URI("http://localhost"))
         .contentType(MediaType.APPLICATION_JSON)
-        .body(this.createAccount(serverRequest), Account.class)
-        .onErrorResume(
-            e -> {
-              log.error("Create new client account error: " + e.getMessage());
-              return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
-            });
+        .body(this.createAccount(serverRequest), Account.class);
   }
 
   /**
@@ -52,11 +46,6 @@ public class AccountsApiHandler extends AccountsApiEngine {
 
     return ServerResponse.ok()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(this.getAccountList(serverRequest), AccountList.class)
-        .onErrorResume(
-            e -> {
-              log.error("Get client account list error: " + e.getMessage());
-              return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
-            });
+        .body(this.getAccountList(serverRequest), AccountList.class);
   }
 }

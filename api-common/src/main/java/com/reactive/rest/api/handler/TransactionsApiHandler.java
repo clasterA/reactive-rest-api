@@ -9,7 +9,6 @@ import com.reactive.rest.service.TransactionService;
 import java.net.URI;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -35,12 +34,7 @@ public class TransactionsApiHandler extends TransactionApiEngine {
 
     return ServerResponse.created(new URI("http://localhost"))
         .contentType(MediaType.APPLICATION_JSON)
-        .body(this.createNewTransaction(serverRequest), TransactionList.class)
-        .onErrorResume(
-            e -> {
-              log.error("Create new transaction error: " + e.getMessage());
-              return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
-            });
+        .body(this.createNewTransaction(serverRequest), TransactionList.class);
   }
 
   /**
@@ -52,11 +46,6 @@ public class TransactionsApiHandler extends TransactionApiEngine {
 
     return ServerResponse.ok()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(this.getTransactionListForAccount(serverRequest), TransactionList.class)
-        .onErrorResume(
-            e -> {
-              log.error("Get transaction list for account error: " + e.getMessage());
-              return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
-            });
+        .body(this.getTransactionListForAccount(serverRequest), TransactionList.class);
   }
 }

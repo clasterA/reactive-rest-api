@@ -35,7 +35,7 @@ public class TransactionServiceImpl implements TransactionService {
   private final CommonMapper mapper;
 
   @Value("${trx.page.size:5}")
-  protected final int pageSize = 5;
+  protected final int pageSize = 10;
 
   /**
    * Accept, external incoming transaction - Debit, external outgoing transaction - Credit, internal

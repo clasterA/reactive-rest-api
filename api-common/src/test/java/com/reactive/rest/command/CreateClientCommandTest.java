@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 class CreateClientCommandTest {
 
   @Test
-  @DisplayName("Create client command test.")
-  void clientStatusEnumValueTest() {
+  @DisplayName("Integrity test, create client command")
+  void createClientCommandIntegrityTest() {
 
     var command = CreateClientCommand.builder().name("Test client").build();
 

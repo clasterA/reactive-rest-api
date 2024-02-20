@@ -10,7 +10,6 @@ import com.reactive.rest.service.ClientService;
 import java.net.URI;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -35,12 +34,7 @@ public class ClientsApiHandler extends ClientsApiEngine {
 
     return ServerResponse.created(new URI("http://localhost"))
         .contentType(MediaType.APPLICATION_JSON)
-        .body(this.createNewClient(serverRequest), Client.class)
-        .onErrorResume(
-            e -> {
-              log.error("Create new client error: " + e.getMessage());
-              return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
-            });
+        .body(this.createNewClient(serverRequest), Client.class);
   }
 
   /**
@@ -52,12 +46,7 @@ public class ClientsApiHandler extends ClientsApiEngine {
 
     return ServerResponse.ok()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(this.getExistingClient(serverRequest), Client.class)
-        .onErrorResume(
-            e -> {
-              log.error("Get client error: " + e.getMessage());
-              return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
-            });
+        .body(this.getExistingClient(serverRequest), Client.class);
   }
 
   /**
@@ -69,12 +58,7 @@ public class ClientsApiHandler extends ClientsApiEngine {
 
     return ServerResponse.ok()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(this.getClientList(serverRequest), ClientList.class)
-        .onErrorResume(
-            e -> {
-              log.error("Get clients error: " + e.getMessage());
-              return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
-            });
+        .body(this.getClientList(serverRequest), ClientList.class);
   }
 
   /**
@@ -86,11 +70,6 @@ public class ClientsApiHandler extends ClientsApiEngine {
 
     return ServerResponse.accepted()
         .contentType(MediaType.APPLICATION_JSON)
-        .body(this.removeExistingClient(serverRequest), Client.class)
-        .onErrorResume(
-            e -> {
-              log.error("Remove client error: " + e.getMessage());
-              return ServerResponse.status(HttpStatus.BAD_REQUEST).bodyValue(e.getMessage());
-            });
+        .body(this.removeExistingClient(serverRequest), Client.class);
   }
 }
