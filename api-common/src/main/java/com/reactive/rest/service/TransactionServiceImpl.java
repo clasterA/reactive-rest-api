@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 @Slf4j
 @Service
@@ -69,38 +70,7 @@ public class TransactionServiceImpl implements TransactionService {
                       "Create transactions",
                       "Transaction currency not match any accounts currency");
                 }
-
-                switch (command.getTrxType()) {
-                  case DEBIT -> {
-                    if (!trxList.getFirst().getAccCurrency().equals(command.getTrxCurrency())) {
-                      return commonListOfError.badRequestError(
-                          "Create transaction not match with receiver account currency",
-                          "Transaction currency not match. Money transfer, Debit operation");
-                    }
-                    return Mono.zip(
-                        Mono.just(trxList),
-                        exchangeRateService.getRateBaseCurrencyAndCurrency(
-                            trxList.getFirst().getAccCurrency(),
-                            trxList.getLast().getAccCurrency()));
-                  }
-                  case CREDIT -> {
-                    if (!trxList.getLast().getAccCurrency().equals(command.getTrxCurrency())) {
-                      return commonListOfError.badRequestError(
-                          "Create transaction not match with receiver account currency",
-                          "Transaction currency not match. Money transfer, Credit operation");
-                    }
-                    return Mono.zip(
-                        Mono.just(trxList),
-                        exchangeRateService.getRateBaseCurrencyAndCurrency(
-                            trxList.getLast().getAccCurrency(),
-                            trxList.getFirst().getAccCurrency()));
-                  }
-                  default -> {
-                    return commonListOfError.badRequestError(
-                        "Create transaction", "Transaction type not match");
-                  }
-                }
-
+                return checkTransactionIntegrity(command, trxList);
               } else {
                 // external transfer can be only in the selected account currency
                 if (!trxList.getFirst().getAccCurrency().equals(command.getTrxCurrency())) {
@@ -199,28 +169,62 @@ public class TransactionServiceImpl implements TransactionService {
           }
           newTransaction.setTrxType(trxType);
 
-          switch (trxType) {
-            case DEBIT ->
-                newTransaction.setEndAmount(
-                    newTransaction.getBeginAmount().add(newTransaction.getTrxAmount()));
-            case CREDIT -> {
-              var substractAmount = newTransaction.getTrxAmount();
-              if (exchangeRate.getCurrency() != null
-                  && exchangeRate.getCurrency().equals(transaction.getAccCurrency())) {
-                substractAmount =
-                    newTransaction
-                        .getTrxAmount()
-                        .multiply(exchangeRate.getRate())
-                        .setScale(2, BigDecimal.ROUND_HALF_UP);
-              }
-              newTransaction.setTrxAmount(substractAmount);
-              newTransaction.setEndAmount(
-                  newTransaction.getBeginAmount().subtract(substractAmount));
+          if (trxType.equals(TransactionTypeEnum.DEBIT)) {
+            newTransaction.setEndAmount(
+                newTransaction.getBeginAmount().add(newTransaction.getTrxAmount()));
+          } else {
+            var substractAmount = newTransaction.getTrxAmount();
+            if (exchangeRate.getCurrency() != null
+                && exchangeRate.getCurrency().equals(transaction.getAccCurrency())) {
+              substractAmount =
+                  newTransaction
+                      .getTrxAmount()
+                      .multiply(exchangeRate.getRate())
+                      .setScale(2, BigDecimal.ROUND_HALF_EVEN);
             }
+            newTransaction.setTrxAmount(substractAmount);
+            newTransaction.setEndAmount(newTransaction.getBeginAmount().subtract(substractAmount));
           }
           newTransactions.add(newTransaction);
         });
 
     return Mono.just(mapper.mapTransactionEntityList(newTransactions));
+  }
+
+  private Mono<Tuple2<List<Transaction>, ExchangeRate>> checkTransactionIntegrity(
+      CreateTransactionCommand command, List<Transaction> transactions) {
+
+    return Mono.just(transactions)
+        .flatMap(
+            trxList -> {
+              switch (command.getTrxType()) {
+                case DEBIT -> {
+                  if (!trxList.getFirst().getAccCurrency().equals(command.getTrxCurrency())) {
+                    return commonListOfError.badRequestError(
+                        "Create transaction not match with receiver account currency",
+                        "Transaction currency not match. Money transfer, Debit operation");
+                  }
+                  return Mono.zip(
+                      Mono.just(trxList),
+                      exchangeRateService.getRateBaseCurrencyAndCurrency(
+                          trxList.getFirst().getAccCurrency(), trxList.getLast().getAccCurrency()));
+                }
+                case CREDIT -> {
+                  if (!trxList.getLast().getAccCurrency().equals(command.getTrxCurrency())) {
+                    return commonListOfError.badRequestError(
+                        "Create transaction not match with receiver account currency",
+                        "Transaction currency not match. Money transfer, Credit operation");
+                  }
+                  return Mono.zip(
+                      Mono.just(trxList),
+                      exchangeRateService.getRateBaseCurrencyAndCurrency(
+                          trxList.getLast().getAccCurrency(), trxList.getFirst().getAccCurrency()));
+                }
+                default -> {
+                  return commonListOfError.badRequestError(
+                      "Create transaction", "Transaction type not match");
+                }
+              }
+            });
   }
 }
