@@ -6,6 +6,7 @@ package com.reactive.rest.api;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 
 import com.reactive.rest.api.handler.AccountsApiHandler;
+import com.reactive.rest.dto.Account;
 import com.reactive.rest.dto.Client;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,7 +43,7 @@ public class AccountsApi {
                   @ApiResponse(
                       responseCode = "201",
                       description = "Created",
-                      content = @Content(schema = @Schema(implementation = UUID.class))),
+                      content = @Content(schema = @Schema(implementation = Account.class))),
                   @ApiResponse(responseCode = "400", description = "Bad Request")
                 }))
   })
@@ -73,7 +74,7 @@ public class AccountsApi {
                   @ApiResponse(
                       responseCode = "200",
                       description = "OK",
-                      content = @Content(schema = @Schema(implementation = Client.class))),
+                      content = @Content(schema = @Schema(implementation = Account.class))),
                   @ApiResponse(responseCode = "400", description = "Bad Request")
                 }))
   })

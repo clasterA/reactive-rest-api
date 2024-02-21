@@ -7,6 +7,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 
 import com.reactive.rest.api.handler.TransactionsApiHandler;
 import com.reactive.rest.dto.Client;
+import com.reactive.rest.dto.Transaction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -43,7 +44,7 @@ public class TransactionsApi {
                   @ApiResponse(
                       responseCode = "201",
                       description = "Created",
-                      content = @Content(schema = @Schema(implementation = UUID.class))),
+                      content = @Content(schema = @Schema(implementation = Transaction.class))),
                   @ApiResponse(responseCode = "400", description = "Bad Request")
                 }))
   })
@@ -75,7 +76,7 @@ public class TransactionsApi {
                   @ApiResponse(
                       responseCode = "200",
                       description = "OK",
-                      content = @Content(schema = @Schema(implementation = Client.class))),
+                      content = @Content(schema = @Schema(implementation = Transaction.class))),
                   @ApiResponse(responseCode = "400", description = "Bad Request")
                 }))
   })

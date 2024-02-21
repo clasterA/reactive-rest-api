@@ -42,7 +42,7 @@ public class ClientsApi {
                   @ApiResponse(
                       responseCode = "201",
                       description = "Created",
-                      content = @Content(schema = @Schema(implementation = UUID.class))),
+                      content = @Content(schema = @Schema(implementation = Client.class))),
                   @ApiResponse(responseCode = "400", description = "Bad Request")
                 }))
   })

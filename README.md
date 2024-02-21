@@ -38,18 +38,16 @@
 ./gradlew bootJar
 ```
 
-### Run Integration Tests
-
 ### Local environment setup
 
-To manage JDK version on local machine install [jenv](https://www.jenv.be/).
+To manage JDK version (21 java version) on local machine install [jenv](https://www.jenv.be/).
 
 To manage docker containers on local machine install [docker](https://www.docker.com/get-started/).
 
 Start Local Docker Compose with Dependencies
 
 ```shell script
-cd ./docker
+cd ./local-docker
 ./start-containers.sh
 ```
 
