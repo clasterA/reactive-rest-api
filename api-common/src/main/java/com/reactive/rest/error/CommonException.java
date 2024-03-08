@@ -14,4 +14,9 @@ public class CommonException extends RuntimeException {
     super(error.getDescription());
     this.error = error;
   }
+
+  public CommonException(ErrorMessage error, Throwable e) {
+    super(error.getDescription(), e);
+    this.error = error;
+  }
 }

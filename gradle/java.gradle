@@ -92,16 +92,15 @@ jacocoTestCoverageVerification {
     violationRules {
         rule {
             limit {
-                minimum = 0.80
+                minimum = 0.90
             }
         }
         rule {
             element = 'CLASS'
             excludes = ['com.reactive.rest.ReactiveRestApiApplication',
-                        'com.reactive.rest.config.WebExceptionHandlerConfig',
-                        'com.reactive.rest.repository.Tables']
+                        'com.reactive.rest.config.WebExceptionHandlerConfig']
             limit {
-                minimum = 0.80
+                minimum = 0.90
             }
         }
     }

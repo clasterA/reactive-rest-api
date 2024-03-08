@@ -6,6 +6,7 @@ package com.reactive.rest.api.handler;
 import com.reactive.rest.dto.TransactionList;
 import com.reactive.rest.engine.TransactionApiEngine;
 import com.reactive.rest.service.TransactionService;
+import com.reactive.rest.utils.CommonUtils;
 import java.net.URI;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +20,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class TransactionsApiHandler extends TransactionApiEngine {
 
-  public TransactionsApiHandler(TransactionService transactionService) {
-    super(transactionService);
+  public TransactionsApiHandler(TransactionService transactionService, CommonUtils commonUtils) {
+    super(transactionService, commonUtils);
   }
 
   /**

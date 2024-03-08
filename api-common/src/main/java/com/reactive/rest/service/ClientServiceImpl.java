@@ -34,8 +34,11 @@ public class ClientServiceImpl implements ClientService {
 
     return clientRepository
         .save(createClientRequest(command))
-        .onErrorResume(ex -> commonListOfError.badRequestError("Create client", ex.getMessage()))
-        .map(mapper::map);
+        .switchIfEmpty(
+            commonListOfError.badRequestError(
+                "Create client", new Throwable("Create client error")))
+        .map(mapper::map)
+        .onErrorResume(ex -> commonListOfError.badRequestError("Create client", ex.getMessage()));
   }
 
   @Override
@@ -44,7 +47,9 @@ public class ClientServiceImpl implements ClientService {
     return clientRepository
         .findByGuid(guid)
         .map(mapper::map)
-        .switchIfEmpty(commonListOfError.badRequestError("Get client by guid", "Client not found"));
+        .switchIfEmpty(
+            commonListOfError.badRequestError(
+                "Get client by guid", new Throwable("Get client by id error")));
   }
 
   @Override
@@ -53,7 +58,8 @@ public class ClientServiceImpl implements ClientService {
     return Mono.defer(
             () -> clientRepository.getClientList().collectList().map(mapper::mapClientList))
         .doOnEach(clientList -> log.debug("Client data : {}", clientList))
-        .switchIfEmpty(commonListOfError.badRequestError("Get clients", "Clients not found"));
+        .switchIfEmpty(
+            commonListOfError.badRequestError("Get clients", new Throwable("Get clients error")));
   }
 
   @Override
@@ -62,8 +68,11 @@ public class ClientServiceImpl implements ClientService {
 
     return clientRepository
         .removeClient(guid, ClientStatusEnum.CLOSED.getVal())
-        .onErrorResume(ex -> commonListOfError.badRequestError("Remove client", ex.getMessage()))
-        .map(mapper::map);
+        .switchIfEmpty(
+            commonListOfError.badRequestError(
+                "Remove client", new Throwable("Remove client error")))
+        .map(mapper::map)
+        .onErrorResume(ex -> commonListOfError.badRequestError("Remove client", ex.getMessage()));
   }
 
   private ClientEntity createClientRequest(CreateClientCommand command) {

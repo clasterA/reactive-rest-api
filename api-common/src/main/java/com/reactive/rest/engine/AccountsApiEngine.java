@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 public class AccountsApiEngine {
 
   private final AccountService accountService;
+  private final CommonUtils commonUtils;
 
   protected Mono<Account> createAccount(ServerRequest serverRequest) {
 
@@ -33,7 +34,7 @@ public class AccountsApiEngine {
   protected Mono<AccountList> getAccountList(ServerRequest serverRequest) {
 
     return Mono.just(serverRequest)
-        .flatMap(CommonUtils::getUrlId)
+        .flatMap(commonUtils::getUrlId)
         .flatMap(accountService::getClientAccountList)
         .flatMap(
             accounts -> {

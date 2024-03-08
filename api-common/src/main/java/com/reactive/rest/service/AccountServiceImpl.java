@@ -39,12 +39,13 @@ public class AccountServiceImpl implements AccountService {
               command.setClientName(client.getName());
               return accountRepository
                   .save(createAccountRequest(command))
-                  .onErrorResume(
-                      ex ->
-                          commonListOfError.badRequestError(
-                              "Create new client account", ex.getMessage()))
+                  .switchIfEmpty(
+                      commonListOfError.badRequestError(
+                          "Create client", new Throwable("Create client error")))
                   .map(mapper::map);
-            });
+            })
+        .onErrorResume(
+            ex -> commonListOfError.badRequestError("Create new client account", ex.getMessage()));
   }
 
   @Override
@@ -54,7 +55,8 @@ public class AccountServiceImpl implements AccountService {
         .findByGuid(accGuid)
         .map(mapper::map)
         .switchIfEmpty(
-            commonListOfError.badRequestError("Get account by guid", "Account not found"));
+            commonListOfError.badRequestError(
+                "Get account by guid", new Throwable("Account not found error")));
   }
 
   @Override
@@ -69,7 +71,8 @@ public class AccountServiceImpl implements AccountService {
         .doOnEach(accountList -> log.debug("Client account data : {}", accountList))
         .switchIfEmpty(
             commonListOfError.badRequestError(
-                "Get client account list", "Not found any account for client"));
+                "Get client account list",
+                new Throwable("Not found any account for client error")));
   }
 
   private AccountEntity createAccountRequest(CreateClientAccountCommand command) {

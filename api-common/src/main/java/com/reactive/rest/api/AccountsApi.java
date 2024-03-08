@@ -7,12 +7,10 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 
 import com.reactive.rest.api.handler.AccountsApiHandler;
 import com.reactive.rest.dto.Account;
-import com.reactive.rest.dto.Client;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import java.util.UUID;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.context.annotation.Bean;

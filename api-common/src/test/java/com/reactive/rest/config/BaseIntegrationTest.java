@@ -66,8 +66,6 @@ public abstract class BaseIntegrationTest extends Assertions {
   @Autowired TransactionRepository transactionRepository;
 
   @LocalServerPort private Integer serverPort;
-
-  protected static final Network POSTGRESQL_NETWORK = Network.newNetwork();
   protected List<Client> clientList = new ArrayList<>();
   protected List<Account> accountList = new ArrayList<>();
 
@@ -85,7 +83,7 @@ public abstract class BaseIntegrationTest extends Assertions {
           .withDatabaseName("rest_api_db")
           .withUsername("postgres")
           .withPassword("postgres")
-          .withNetwork(POSTGRESQL_NETWORK)
+          .withNetwork(Network.newNetwork())
           .withNetworkAliases("postgres")
           .withReuse(true);
 

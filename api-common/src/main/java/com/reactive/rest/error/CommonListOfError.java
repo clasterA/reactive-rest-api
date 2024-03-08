@@ -11,4 +11,6 @@ import reactor.core.publisher.Mono;
 public interface CommonListOfError {
 
   <T> Mono<T> badRequestError(@NotBlank String resourceName, @NotBlank String errorMessage);
+
+  <T> Mono<T> badRequestError(String resourceName, Throwable ex);
 }

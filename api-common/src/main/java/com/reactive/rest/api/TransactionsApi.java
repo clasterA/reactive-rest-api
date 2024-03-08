@@ -6,13 +6,11 @@ package com.reactive.rest.api;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 
 import com.reactive.rest.api.handler.TransactionsApiHandler;
-import com.reactive.rest.dto.Client;
 import com.reactive.rest.dto.Transaction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import java.util.UUID;
 import org.springdoc.core.annotations.RouterOperation;
 import org.springdoc.core.annotations.RouterOperations;
 import org.springframework.context.annotation.Bean;

@@ -7,6 +7,7 @@ import com.reactive.rest.dto.Account;
 import com.reactive.rest.dto.AccountList;
 import com.reactive.rest.engine.AccountsApiEngine;
 import com.reactive.rest.service.AccountService;
+import com.reactive.rest.utils.CommonUtils;
 import java.net.URI;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class AccountsApiHandler extends AccountsApiEngine {
 
-  public AccountsApiHandler(AccountService accountService) {
-    super(accountService);
+  public AccountsApiHandler(AccountService accountService, CommonUtils commonUtils) {
+    super(accountService, commonUtils);
   }
 
   /**

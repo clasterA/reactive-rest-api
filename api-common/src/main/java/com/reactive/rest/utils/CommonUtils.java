@@ -3,6 +3,8 @@
  */
 package com.reactive.rest.utils;
 
+import com.reactive.rest.error.CommonException;
+import com.reactive.rest.error.ErrorMessage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,10 +13,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.HandlerMapping;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import reactor.core.publisher.Mono;
 
+@Component
 public class CommonUtils {
 
   /**
@@ -24,21 +29,35 @@ public class CommonUtils {
    * @return UUID id
    */
   @SuppressWarnings("unchecked")
-  public static Mono<UUID> getUrlId(ServerRequest serverRequest) {
+  public Mono<UUID> getUrlId(ServerRequest serverRequest) {
 
     return Mono.fromCallable(
         () -> {
-          if (serverRequest
-              .attribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)
-              .isPresent()) {
-            return UUID.fromString(
-                ((Map<String, String>)
-                        serverRequest
-                            .attribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)
-                            .get())
-                    .get("id"));
-          } else {
-            return UUID.fromString("");
+          try {
+            if (serverRequest
+                .attribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)
+                .isPresent()) {
+
+              return UUID.fromString(
+                  ((Map<String, String>)
+                          serverRequest
+                              .attribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE)
+                              .get())
+                      .get("id"));
+            } else {
+              throw new CommonException(
+                  ErrorMessage.builder()
+                      .httpCode(HttpStatus.BAD_REQUEST.value())
+                      .name("Error getting url id attribute")
+                      .build());
+            }
+          } catch (Exception ex) {
+            throw new CommonException(
+                ErrorMessage.builder()
+                    .httpCode(HttpStatus.BAD_REQUEST.value())
+                    .name("Error getting url id attribute")
+                    .build(),
+                ex);
           }
         });
   }

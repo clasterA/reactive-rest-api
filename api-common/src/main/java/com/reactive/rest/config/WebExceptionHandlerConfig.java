@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ServerWebExchange;
@@ -19,7 +20,13 @@ import reactor.core.publisher.Flux;
 @Configuration
 public class WebExceptionHandlerConfig {
 
+  /**
+   * DefaultErrorWebExceptionHandler - provided by Spring Boot for error handling: Ordered -1.
+   * ResponseStatusExceptionHandler - provided by Spring Framework for error handling: Ordered 0.
+   * Our error handling must calling first: @Order(-2)
+   */
   @Bean
+  @Order(-2)
   public WebExceptionHandler exceptionHandler() {
     return (ServerWebExchange exchange, Throwable ex) -> {
       if (ex instanceof CommonException error) {

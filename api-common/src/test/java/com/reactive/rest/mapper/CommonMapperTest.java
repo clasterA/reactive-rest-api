@@ -28,7 +28,13 @@ class CommonMapperTest {
 
     var guid = UUID.randomUUID();
 
-    var clientEntity =
+    var clientDto =
+        mapper.map(ClientEntity.builder().status(ClientStatusEnum.ACTIVE.getVal()).build());
+    assertThat(clientDto).isNotNull();
+    var clientEntity = mapper.map(clientDto);
+    assertThat(clientEntity).isNotNull();
+
+    clientEntity =
         ClientEntity.builder()
             .id(1L)
             .guid(guid)
@@ -38,7 +44,7 @@ class CommonMapperTest {
 
     assertThat(clientEntity).isNotNull();
 
-    var clientDto = mapper.map(clientEntity);
+    clientDto = mapper.map(clientEntity);
 
     assertThat(clientDto).isNotNull();
     assertThat(clientDto.getGuid()).isEqualTo(guid);
@@ -62,7 +68,12 @@ class CommonMapperTest {
     var guid = UUID.randomUUID();
     var clientGuid = UUID.randomUUID();
 
-    var accountEntity =
+    var accountDto = mapper.map(AccountEntity.builder().build());
+    assertThat(accountDto).isNotNull();
+    var accountEntity = mapper.map(accountDto);
+    assertThat(accountEntity).isNotNull();
+
+    accountEntity =
         AccountEntity.builder()
             .id(1L)
             .guid(guid)
@@ -74,7 +85,7 @@ class CommonMapperTest {
 
     assertThat(accountEntity).isNotNull();
 
-    var accountDto = mapper.map(accountEntity);
+    accountDto = mapper.map(accountEntity);
 
     assertThat(accountDto).isNotNull();
     assertThat(accountDto.getGuid()).isEqualTo(guid);
@@ -99,7 +110,12 @@ class CommonMapperTest {
 
     var localDate = LocalDate.now();
 
-    var exchangeRateEntity =
+    var exchangeRateDto = mapper.map(ExchangeRateEntity.builder().build());
+    assertThat(exchangeRateDto).isNotNull();
+    var exchangeRateEntity = mapper.map(exchangeRateDto);
+    assertThat(exchangeRateEntity).isNotNull();
+
+    exchangeRateEntity =
         ExchangeRateEntity.builder()
             .id(1L)
             .baseCurrency("EUR")
@@ -110,7 +126,7 @@ class CommonMapperTest {
 
     assertThat(exchangeRateEntity).isNotNull();
 
-    var exchangeRateDto = mapper.map(exchangeRateEntity);
+    exchangeRateDto = mapper.map(exchangeRateEntity);
 
     assertThat(exchangeRateDto).isNotNull();
     assertThat(exchangeRateDto.getBaseCurrency()).isEqualTo("EUR");
@@ -133,7 +149,13 @@ class CommonMapperTest {
     var guid = UUID.randomUUID();
     var accGuid = UUID.randomUUID();
 
-    var transactionEntity =
+    var transactionDto =
+        mapper.map(TransactionEntity.builder().trxType(TransactionTypeEnum.DEBIT.getVal()).build());
+    assertThat(transactionDto).isNotNull();
+    var transactionEntity = mapper.map(transactionDto);
+    assertThat(transactionEntity).isNotNull();
+
+    transactionEntity =
         TransactionEntity.builder()
             .id(1L)
             .guid(guid)
@@ -147,7 +169,7 @@ class CommonMapperTest {
 
     assertThat(transactionEntity).isNotNull();
 
-    var transactionDto = mapper.map(transactionEntity);
+    transactionDto = mapper.map(transactionEntity);
 
     assertThat(transactionDto).isNotNull();
     assertThat(transactionDto.getGuid()).isEqualTo(guid);

@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 public class ClientsApiEngine {
 
   private final ClientService clientService;
+  private final CommonUtils commonUtils;
 
   protected Mono<Client> createNewClient(ServerRequest serverRequest) {
 
@@ -33,7 +34,7 @@ public class ClientsApiEngine {
   protected Mono<Client> getExistingClient(ServerRequest serverRequest) {
 
     return Mono.just(serverRequest)
-        .flatMap(CommonUtils::getUrlId)
+        .flatMap(commonUtils::getUrlId)
         .flatMap(clientService::getClientByGuid);
   }
 
@@ -52,7 +53,7 @@ public class ClientsApiEngine {
   protected Mono<Client> removeExistingClient(ServerRequest serverRequest) {
 
     return Mono.just(serverRequest)
-        .flatMap(CommonUtils::getUrlId)
+        .flatMap(commonUtils::getUrlId)
         .flatMap(clientService::removeClient);
   }
 }

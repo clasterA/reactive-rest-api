@@ -20,6 +20,10 @@ public enum CommonErrors {
     return Mono.error(() -> new CommonException(this.toMessageError(message)));
   }
 
+  public <T> Mono<T> toError(String message, Throwable ex) {
+    return Mono.error(() -> new CommonException(this.toMessageError(message), ex));
+  }
+
   public ErrorMessage toMessageError(String description) {
     return new ErrorMessage(this.httpCode, this.name(), description);
   }

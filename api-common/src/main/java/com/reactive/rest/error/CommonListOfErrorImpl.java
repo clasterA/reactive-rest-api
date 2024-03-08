@@ -20,4 +20,13 @@ public class CommonListOfErrorImpl implements CommonListOfError {
                 String.format("Bad request. Resource = %s, Error = %s", resourceName, errorMessage))
         .flatMap(BAD_REQUEST::toError);
   }
+
+  @Override
+  public <T> Mono<T> badRequestError(String resourceName, Throwable ex) {
+    return Mono.fromSupplier(
+            () ->
+                String.format(
+                    "Bad request. Resource = %s, Error = %s", resourceName, ex.getMessage()))
+        .flatMap(result -> BAD_REQUEST.toError(result, ex));
+  }
 }

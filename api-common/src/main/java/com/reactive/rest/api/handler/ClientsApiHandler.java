@@ -7,6 +7,7 @@ import com.reactive.rest.dto.Client;
 import com.reactive.rest.dto.ClientList;
 import com.reactive.rest.engine.ClientsApiEngine;
 import com.reactive.rest.service.ClientService;
+import com.reactive.rest.utils.CommonUtils;
 import java.net.URI;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,8 @@ import reactor.core.publisher.Mono;
 @Component
 public class ClientsApiHandler extends ClientsApiEngine {
 
-  public ClientsApiHandler(ClientService clientService) {
-    super(clientService);
+  public ClientsApiHandler(ClientService clientService, CommonUtils commonUtils) {
+    super(clientService, commonUtils);
   }
 
   /**

@@ -21,6 +21,7 @@ import reactor.core.publisher.Mono;
 public class TransactionApiEngine {
 
   private final TransactionService transactionService;
+  private final CommonUtils commonUtils;
 
   protected Mono<TransactionList> createNewTransaction(ServerRequest serverRequest) {
 
@@ -38,7 +39,7 @@ public class TransactionApiEngine {
   protected Mono<TransactionList> getTransactionListForAccount(ServerRequest serverRequest) {
 
     return Mono.just(serverRequest)
-        .flatMap(CommonUtils::getUrlId)
+        .flatMap(commonUtils::getUrlId)
         .flatMap(
             accGuid ->
                 transactionService.getTransactionListForAccount(
